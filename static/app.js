@@ -2,7 +2,6 @@
 
 const BASE_URL = "/api/get-videos";
 const form = document.querySelector('#keyword-search-form');
-const keyword = document.querySelector("#keyword").value;
 const keywordSearchResults = document.querySelector("#keyword-search-results");
 let keywordErr = document.querySelector("#keyword-err");
 
@@ -10,6 +9,7 @@ async function processKeywordSearchForm(evt) {
   evt.preventDefault();
 
   // get data from keyword search form
+  const keyword = document.querySelector("#keyword").value;
   const formData = {keyword};
 
   // make AJAX call to our Flask API
@@ -17,9 +17,7 @@ async function processKeywordSearchForm(evt) {
     method: 'post',
     url: `${BASE_URL}`,
     responseType: 'json',
-    data: {
-      keyword: formData
-    }
+    data: formData,
   });
   console.log("res: ", res);
   return res;
@@ -36,7 +34,6 @@ function handleResponse(res) {
     }
   } else {
     let videos = res['data'];
-    console.log("videos: ", videos);
     for (let video of videos) {
       let thumb_url = video["thumb_url_high"];
       const article = document.createElement("article");
