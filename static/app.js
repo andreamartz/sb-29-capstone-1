@@ -26,6 +26,7 @@ async function processKeywordSearchForm(evt) {
 /** handleResponse: deal with response from our get-videos app */
 function handleResponse(res) {
   keywordErr.innerText = '';
+  keywordSearchResults.innerText = '';
   const res_errors = res["data"]["errors"]
 
   if (res_errors) {
