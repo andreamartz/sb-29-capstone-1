@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, g, session, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 import requests
-# from models import db, connect_db, User
+# from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 from secrets import API_SECRET_KEY
 
 CURR_USER_KEY = "curr_user"
@@ -13,11 +13,11 @@ app = Flask(__name__)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
-# app.config['SQLALCHEMY_DATABASE_URI'] = (
-#     os.environ.get('DATABASE_URL', 'postgres:///access-academy'))
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ.get('DATABASE_URL', 'postgres:///access-academy'))
 
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['SQLALCHEMY_ECHO'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
@@ -29,23 +29,17 @@ toolbar = DebugToolbarExtension(app)
 #######################################
 
 
-@app.before_request
-def add_user_to_g():
-    """If we're logged in, add curr user to Flask global."""
-
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
-
-    else:
-        g.user = None
-
-
-def do_login(user):
-    """Log in user."""
-
-    session[CURR_USER_KEY] = user.id
-
-
+# @app.before_request
+# def add_user_to_g():
+#     """If we're logged in, add curr user to Flask global."""
+#     if CURR_USER_KEY in session:
+#         g.user = User.query.get(session[CURR_USER_KEY])
+#     else:
+#         g.user = None
+#
+# def do_login(user):
+#     """Log in user."""
+#     session[CURR_USER_KEY] = user.id
 def do_logout():
     """Logout user."""
 
@@ -79,12 +73,12 @@ def validate_data(data):
 
 def get_yt_videos(keyword):
     """Get videos from YouTube API on a given topic."""
+
     MAX_RESULTS = 5
 
-    # search for video data
-    res_search = requests.get(
-        f"{API_BASE_URL}/search/?part=snippet&maxResults={MAX_RESULTS}&type=video&q={keyword}&key={API_SECRET_KEY}"
-    )
+    # # search for video data
+    res_search = yt_search(keyword, MAX_RESULTS)
+
     # turn search results into json
     search_json = res_search.json()
     videos = search_json['items']
@@ -119,7 +113,23 @@ def get_yt_videos(keyword):
 
     res_json = jsonify(videos_data)
 
+    # CHANGE: delete comment below
+    # See example on this page for how to get contentDetails (like duration) and statistics:
+    # https://developers.google.com/youtube/v3/getting-started#:~:text=Projects%20that%20enable%20the%20YouTube,majority%20of%20our%20API%20users.
+
     return res_json
+
+
+def yt_search(keyword, max_results):
+    """Retrieve videos by keyword.
+    Limit results to number in max_results."""
+
+    # search for video data
+    res = requests.get(
+        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&key={API_SECRET_KEY}"
+    )
+
+    return res
 
 
 @app.errorhandler(404)
