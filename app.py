@@ -5,9 +5,26 @@ from flask_debugtoolbar import DebugToolbarExtension
 import requests
 from secrets import API_SECRET_KEY
 
-API_BASE_URL = "https://www.googleapis.com/youtube/v3/search"
+# CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
+
+# Get DB_URI from environ variable (useful for production/testing) or,
+
+#######################################
+User signup/login/logout
+#######################################
+
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
 
 def do_login(user):
     """Log in user."""
@@ -69,6 +86,20 @@ def get_yt_videos(keyword):
     res_json = jsonify(videos_data)
 
     return res_json
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """Handle 404 errors by showing custom 404 page."""
+
+    return render_template('404.html'), 404
+
+
+@app.route("/")
+def homepage():
+    """Show homepage."""
+
+    return render_template('home.html')
 
 # *******************************
 # API ENDPOINT
