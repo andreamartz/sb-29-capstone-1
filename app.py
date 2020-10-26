@@ -9,6 +9,43 @@ API_BASE_URL = "https://www.googleapis.com/youtube/v3/search"
 
 app = Flask(__name__)
 
+def do_login(user):
+    """Log in user."""
+
+    session[CURR_USER_KEY] = user.id
+
+
+def do_logout():
+    """Logout user."""
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
+
+def get_form_data():
+    """Get search data from client form."""
+
+    # get search form data from app.js
+    data = {}
+    data["keyword"] = request.json['keyword']
+
+    return data
+
+
+def validate_data(data):
+    """Check for missing dataa from client."""
+
+    errors = {'errors': {}}
+
+    # if keyword missing from form
+    # CHANGE (resolve this comment and remove): I think I need this check, because otherwise an empty string would be submitted to search? Check this.
+    if not data['keyword']:
+        keyword_err = ["This field is required."]
+        errors['errors']['keyword'] = keyword_err
+
+    return errors
+
+
 def get_yt_videos(keyword):
     """Get videos from YouTube API on a given topic."""
 
