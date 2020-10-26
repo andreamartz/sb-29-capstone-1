@@ -11,6 +11,7 @@ async function processKeywordSearchForm(evt) {
   // get data from keyword search form
   const keyword = document.querySelector("#keyword").value;
   const formData = {keyword};
+  console.log("keyword: ", keyword, "formData: ", formData);
 
   // make AJAX call to our Flask API
   const res = await axios({
@@ -36,11 +37,11 @@ function handleResponse(res) {
   } else {
     let videos = res['data'];
     for (let video of videos) {
-      let thumb_url = video["thumb_url_high"];
+      let thumbUrl = video["thumb_url_high"];
       const article = document.createElement("article");
       article.setAttribute("data-id", `${video['id']}`);
       article.innerHTML = 
-      `<img src="${thumb_url}" alt="thumbnail of video: ${video['title']}">
+      `${video['embed']}
       <div>
         <p>Title: ${video['title']}</p>
         <p>Description: ${video['description']}</p>
