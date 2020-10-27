@@ -3,7 +3,9 @@ import os
 from flask import Flask, render_template, g, session, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 import requests
+
 # from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
+
 from secrets import API_SECRET_KEY
 
 CURR_USER_KEY = "curr_user"
@@ -13,6 +15,7 @@ app = Flask(__name__)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
+
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgres:///access-academy'))
 
@@ -21,6 +24,7 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
+
 
 # connect_db(app)
 
@@ -115,6 +119,7 @@ def create_list_of_videos(items):
     videos_data = []
 
     for video in items:
+
         video_data = {}
         # add video data to video_data dict
         video_data["id"] = video['id']['videoId']
@@ -153,6 +158,7 @@ def yt_videos(video_id):
     return videos_json
 
 
+
 @app.errorhandler(404)
 def page_not_found(error):
     """Handle 404 errors by showing custom 404 page."""
@@ -184,9 +190,11 @@ def search_videos():
     # validate the form data
     errors = validate_data(data)
 
+
     # if errors, return them
     if errors['errors']:
         return errors
+
 
     # no errors in data; get videos for the keyword searched
     res = get_yt_videos(keyword)
