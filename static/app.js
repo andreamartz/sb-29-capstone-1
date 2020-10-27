@@ -1,13 +1,11 @@
-/** processKeywordSearchForm: get data from form and make AJAX call to Flask API */
-
 const BASE_URL = "/api/get-videos";
 const form = document.querySelector('#keyword-search-form');
 const keywordSearchResults = document.querySelector("#keyword-search-results");
 let keywordErr = document.querySelector("#keyword-err");
 
+/** processKeywordSearchForm: get data from form and make AJAX call to Flask API */
 async function processKeywordSearchForm(evt) {
   evt.preventDefault();
-
   // get data from keyword search form
   const keyword = document.querySelector("#keyword").value;
   const formData = {keyword};
