@@ -3,7 +3,7 @@ import os
 from flask import Flask, render_template, g, session, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 import requests
-# from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
+from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 from secrets import API_SECRET_KEY
 
 CURR_USER_KEY = "curr_user"
@@ -22,24 +22,25 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
-# connect_db(app)
+connect_db(app)
 
 #######################################
 # User signup/login/logout
 #######################################
 
 
-# @app.before_request
-# def add_user_to_g():
-#     """If we're logged in, add curr user to Flask global."""
-#     if CURR_USER_KEY in session:
-#         g.user = User.query.get(session[CURR_USER_KEY])
-#     else:
-#         g.user = None
-#
-# def do_login(user):
-#     """Log in user."""
-#     session[CURR_USER_KEY] = user.id
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+    else:
+        g.user = None
+
+
+def do_login(user):
+    """Log in user."""
+    session[CURR_USER_KEY] = user.id
 
 
 def do_logout():
@@ -85,7 +86,7 @@ def get_yt_videos(keyword):
     # create list of dicts containing info & data re: individual videos
     videos_data = create_list_of_videos(items)
 
-    # for every video returned, call the fcn to get embed iframe
+    # for every video in a list, call the fcn to add iframe to video
     videos_complete = get_iframes(videos_data)
 
     res_json = jsonify(videos_complete)
@@ -131,13 +132,13 @@ def create_list_of_videos(items):
 
 # for every video returned, call the fcn to get embed iframe
 def get_iframes(videos_data):
-    """"""
+    """For every video in videos_data, add """
 
     for video in videos_data:
         video_id = video["id"]
         videos_json = yt_videos(video_id)
-        embed = videos_json['items'][0]['player']['embedHtml']
-        video['embed'] = embed
+        iframe = videos_json['items'][0]['player']['embedHtml']
+        video['iframe'] = iframe
 
     return videos_data
 
