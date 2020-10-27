@@ -40,6 +40,8 @@ toolbar = DebugToolbarExtension(app)
 # def do_login(user):
 #     """Log in user."""
 #     session[CURR_USER_KEY] = user.id
+
+
 def do_logout():
     """Logout user."""
 
@@ -76,15 +78,43 @@ def get_yt_videos(keyword):
 
     MAX_RESULTS = 5
 
-    # # search for video data
-    res_search = yt_search(keyword, MAX_RESULTS)
+    # search for video data
+    search_json = yt_search(keyword, MAX_RESULTS)
+    items = search_json['items']
+
+    # create list of dicts containing info & data re: individual videos
+    videos_data = create_list_of_videos(items)
+
+    # for every video returned, call the fcn to get embed iframe
+    videos_complete = get_iframes(videos_data)
+
+    res_json = jsonify(videos_complete)
+
+    return res_json
+
+
+def yt_search(keyword, max_results):
+    """Retrieve videos by keyword.
+    Limit results to number in max_results.
+    Return JSON response."""
+
+    # search for video data
+    res = requests.get(
+        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&key={API_SECRET_KEY}"
+    )
 
     # turn search results into json
-    search_json = res_search.json()
-    videos = search_json['items']
+    res_json = res.json()
+
+    return res_json
+
+
+# create list of dicts containing info & data re: individual videos
+def create_list_of_videos(items):
+
     videos_data = []
 
-    for video in search_json['items']:
+    for video in items:
         video_data = {}
         # add video data to video_data dict
         video_data["id"] = video['id']['videoId']
@@ -94,42 +124,33 @@ def get_yt_videos(keyword):
         video_data["description"] = video['snippet']['description']
         video_data["thumb_url_high"] = video['snippet']['thumbnails']['high']['url']
 
-        # for each video in res_search, get the id and make a new request to the videos api url to get the embeddable iframe for the video
-        # search for embeddable videos
-        res_videos = requests.get(
-            f"{API_BASE_URL}/videos?part=player&id={video_data['id']}&key={API_SECRET_KEY}"
-        )
-        videos_json = res_videos.json()
-
-        # if retrieved video id matches the one we searched for
-        if videos_json['items'][0]['id'] == video_data['id']:
-            embed = videos_json['items'][0]['player']['embedHtml']
-        else:
-            embed = None
-
-        video_data['embed'] = embed
-
         videos_data.append(video_data)
 
-    res_json = jsonify(videos_data)
-
-    # CHANGE: delete comment below
-    # See example on this page for how to get contentDetails (like duration) and statistics:
-    # https://developers.google.com/youtube/v3/getting-started#:~:text=Projects%20that%20enable%20the%20YouTube,majority%20of%20our%20API%20users.
-
-    return res_json
+    return videos_data
 
 
-def yt_search(keyword, max_results):
-    """Retrieve videos by keyword.
-    Limit results to number in max_results."""
+# for every video returned, call the fcn to get embed iframe
+def get_iframes(videos_data):
+    """"""
 
-    # search for video data
+    for video in videos_data:
+        video_id = video["id"]
+        videos_json = yt_videos(video_id)
+        embed = videos_json['items'][0]['player']['embedHtml']
+        video['embed'] = embed
+
+    return videos_data
+
+
+def yt_videos(video_id):
+    """"""
+
     res = requests.get(
-        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&key={API_SECRET_KEY}"
+        f"{API_BASE_URL}/videos?part=player&id={video_id}&key={API_SECRET_KEY}"
     )
+    videos_json = res.json()
 
-    return res
+    return videos_json
 
 
 @app.errorhandler(404)
