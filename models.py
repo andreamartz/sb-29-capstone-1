@@ -1,8 +1,8 @@
-"""SQLAlchemy models for Capstone 1"""
+"""SQLAlchemy models for Access Academy"""
 # CHANGE project name above
 
 from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, UniqueConstraint,
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -49,6 +49,8 @@ class User(db.Model):
         db.Text,
         default="/static/images/default-pic.png",
     )
+
+    subscriptions = db.relationship('Subscription', backref='user')
 
     # def __repr__(self):
     #     """Create a readable, identifiable representation of user."""
@@ -97,11 +99,12 @@ class User(db.Model):
 class Course(db.Model):
     """Course that is made up of videos curated by course creator"""
 
-    # should I keep this id?
-    # if yes, how to make the id autoincrement?
-    # id = db.Column(
-    #     db.Integer,
-    # )
+    __tablename__ = 'courses'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
 
     popularity = db.Column(
         db.Integer,
@@ -111,22 +114,28 @@ class Course(db.Model):
 
     title = db.Column(
         db.Text,
-        primary_key=True,
     )
 
     creator_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
-        primary_key=True,
     )
+
+    db.UniqueConstraint(title, creator_id)
+
+    subscriptions = db.relationship('Subscription', backref='course')
+
+    videos_courses = db.relationship('VideoCourse', backref='course')
 
 
 class Video(db.Model):
     """Video information and data"""
 
+    __tablename__ = 'videos'
+
     # id comes from YouTube Data API
     id = db.Column(
-        db.Text
+        db.Text,
         primary_key=True,
     )
 
@@ -164,9 +173,13 @@ class Video(db.Model):
         db.Integer,
     )
 
+    videos_courses = db.relationship('VideoCourse', backref='video')
+
 
 class Subscription(db.Model):
     """Join table for users and courses"""
+
+    __tablename__ = 'subscriptions'
 
     subscriber_id = db.Column(
         db.Integer,
@@ -181,8 +194,9 @@ class Subscription(db.Model):
     )
 
 
-class VideosCourses(db.Model):
+class VideoCourse(db.Model):
     """Join table for videos and courses"""
+    __tablename__ = 'videos_courses'
 
     course_id = db.Column(
         db.Integer,
@@ -199,3 +213,13 @@ class VideosCourses(db.Model):
     video_seq = db.Column(
         db.Integer,
     )
+
+
+def connect_db(app):
+    """Connect this database to provided Flask app.
+
+    You should call this in your Flask app.
+    """
+
+    db.app = app
+    db.init_app(app)
