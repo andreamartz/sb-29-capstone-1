@@ -39,7 +39,7 @@ function handleResponse(res) {
       const article = document.createElement("article");
       article.setAttribute("data-id", `${video['id']}`);
       article.innerHTML = 
-      `${video['embed']}
+      `${video['iframe']}
       <div>
         <p>Title: ${video['title']}</p>
         <p>Description: ${video['description']}</p>
