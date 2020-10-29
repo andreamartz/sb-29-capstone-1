@@ -282,12 +282,6 @@ def login():
 # *******************************
 
 
-@app.route("/videos/search", methods=["GET"])
-def search_videos_form():
-    """Display keyword search form and search results."""
-
-    return render_template('/videos/search.html')
-
 # *******************************
 # COURSE ROUTES
 # *******************************
@@ -295,7 +289,16 @@ def search_videos_form():
 
 @app.route("/courses/new")
 def courses_add():
-    """"""
+@app.route("/courses/<int:course_id>/search-video", methods=["GET"])
+def search_videos_form(course_id):
+    """Display keyword search form and search results."""
+
+    # JavaScript is handling the form submission from this page.
+    # Flask API is handling the calls to YouTube Data API.
+
+    course = Course.query.get_or_404(course_id)
+
+    return render_template('/courses/search-video.html', course=course)
 
     # create a new course with title (and more at this point?)
     return
