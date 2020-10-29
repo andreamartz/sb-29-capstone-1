@@ -287,8 +287,51 @@ def login():
 # *******************************
 
 
-@app.route("/courses/new")
+
+@app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
+    """Create a new course:
+
+    If GET: Show form. 
+    If POST and form validates, add course and redirect to course edit page. 
+    If form does not validate, re-present form."""
+
+    # In this route:
+    # show the form to add a course
+    # try: <code to add new course>
+    # except: flash a message and redirect
+    # after course is created, allow user to search for videos
+    # after the videos populate on the page, user can add videos to the course
+    # when a video is added to the course, it will first be added to the db, then to the course
+    # after the video is added to the course the video_seq will be
+
+    # Test:
+    # was a new course created successfully?
+    # does the new course have the expected creator_id?
+    # does the new course have the expected title?
+    # does the new course have a unique title among this creator's courses?
+
+    # CHANGE: uncomment to require login
+    # if not g.user:
+    #     flash("Access unauthorized.", "danger")
+    #     return redirect("/")
+
+    form = CourseAddForm()
+
+    if form.validate_on_submit():
+        # CHANGE: verify that there is not already a course with this title
+        course = Course(title=form.title.data,
+                        creator_id=1)
+
+        db.session.add(course)
+        db.session.commit()
+
+        # CHANGE where this redirects to
+        return redirect(f'/courses/{course.id}/edit')
+
+    return render_template("courses/new.html", form=form)
+
+
 @app.route("/courses/<int:course_id>/search-video", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
