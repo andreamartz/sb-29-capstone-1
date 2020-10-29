@@ -343,5 +343,46 @@ def search_videos_form(course_id):
 
     return render_template('/courses/search-video.html', course=course)
 
-    # create a new course with title (and more at this point?)
-    return
+
+@app.route("/courses/<int:course_id>/add-video/<video_id>", methods=["POST"])
+def add_video(course_id, video_id):
+    """This route does not have a view.
+    Add a video to database.
+    Add video to a course.
+    Add video sequence number within the course."""
+
+    # get video info from hidden form fields
+    id = request.form.get('v-id', None)
+    title = request.form.get('v-title', None)
+    description = request.form.get('v-description', None)
+    channelId = request.form.get('v-channelId', None)
+    channelTitle = request.form.get('v-channelTitle', None)
+    thumbUrl = request.form.get('v-thumbUrl', None)
+    iframe = request.form.get('v-iframe', None)
+
+    # CHANGE: TO DO:
+    # 1. Before adding a video to db, make sure it's not already been added.
+    # 2.
+
+    # create new video
+    video = Video(id=id,
+                  title=title,
+                  description=description,
+                  yt_channel_id=channelId,
+                  yt_channel_title=channelTitle,
+                  iframe=iframe)
+
+    # add new video to database
+    db.session.add(video)
+    db.session.commit()
+
+    # add video and sequence # to course
+    # to get the sequence #, do a query to get the count of videos in the course; this will be the index of the video once it's been added
+    # add the video to course, get its index in the list
+    course = Course.query.get_or_404(course_id)
+    video_seq = len(course.videos) + 1
+
+    # after adding the video, check to make sure it's in videos_courses with the right sequence number
+
+    return redirect(f'courses/{course_id}/search-video')
+
