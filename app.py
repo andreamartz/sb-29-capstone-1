@@ -38,6 +38,10 @@ def add_user_to_g():
         g.user = None
 
 
+# ************************************
+# HELPER FUNCTIONS - login/logout
+# ************************************
+
 def do_login(user):
     """Log in user."""
     session[CURR_USER_KEY] = user.id
@@ -49,6 +53,14 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
+
+# ************************************
+# HELPER FUNCTIONS - search for videos
+# ************************************
+
+# TO DO:
+# 1. get likeCount and viewCount for each video from YT
+# 2.
 
 def get_form_data():
     """Get search data from client form."""
