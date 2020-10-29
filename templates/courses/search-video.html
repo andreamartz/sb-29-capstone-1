@@ -1,0 +1,25 @@
+<!-- Consider deleting this route if the same functionality will remain
+on the course edit route -->
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-8">
+    <form id="keyword-search-form">
+      <div class="form-group">
+        <label for="keyword">Enter a keyword to search for videos</label>
+        <input type="text" class="form-control" id="keyword">
+        <b id="keyword-err"></b>
+        <input type="hidden" id="course-id" value={{course.id}}>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+  <div id="search-results">
+    <!-- Videos will be rendered by JavaScript. -->
+    <!-- Each video will be rendered with an "Add to course" button. -->
+
+  </div>
+</div>
+
+{% endblock %}
