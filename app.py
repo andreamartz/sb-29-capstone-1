@@ -6,9 +6,6 @@ from sqlalchemy.exc import IntegrityError
 import requests
 
 
-from forms import UserAddForm, LoginForm, CourseAddForm
-
-
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 
 from secrets import API_SECRET_KEY

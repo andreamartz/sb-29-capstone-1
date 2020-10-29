@@ -3,6 +3,13 @@
   * Make sure that when course title is modified that it is not the same as any other course by this creator.
   * After a course edits have been made, redirect to course details page.-->
 
+<!-- LOGGED IN USERS ONLY:
+This page will show:
+* for ALL USERS: the details for each course, such as title, creator username, and videos (in order)
+* for COURSE CREATOR: a delete button to remove the course, a delete button next to each video, a way to re-order courses
+
+This view should be passed the course id-->
+
 {% extends 'base.html' %}
 {% block content %}
 
