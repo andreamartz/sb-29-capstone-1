@@ -386,3 +386,16 @@ def add_video(course_id, video_id):
 
     return redirect(f'courses/{course_id}/search-video')
 
+@app.route('/courses/<int:course_id>/edit', methods=["GET", "POST"])
+def courses_edit(course_id):
+    """Display a form to edit a course.
+    Courses may be added, removed, or re-sequenced.
+    Edit an existing course."""
+
+    # query to get the course from the db
+    # the course's videos are in course.videos
+    # in the view, loop through the videos and display them
+
+    course = Course.query.get_or_404(course_id)
+
+    return render_template("courses/edit.html", course=course)
