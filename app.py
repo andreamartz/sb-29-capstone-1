@@ -194,6 +194,25 @@ def search_videos():
 
     return res
 
+
+# ************************************
+# OTHER ROUTES
+# ************************************
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """Handle 404 errors by showing custom 404 page."""
+
+    return render_template('404.html'), 404
+
+
+@app.route("/")
+def homepage():
+    """Show homepage."""
+
+    return render_template('home.html')
+
+
 # *******************************
 # USER ROUTES
 # *******************************
