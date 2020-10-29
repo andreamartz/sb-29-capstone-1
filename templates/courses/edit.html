@@ -1,0 +1,29 @@
+<!-- LOGGED IN USERS ONLY
+  * This page will allow the course creator to edit the course (add/remove videos, reorder videos, change course title)
+  * Make sure that when course title is modified that it is not the same as any other course by this creator.
+  * After a course edits have been made, redirect to course details page.-->
+
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Modify the course: {{ course.title }}</h1>
+<h2>Add, remove, or reorder the videos in this course.</h2>
+{% if course.videos %}
+{% for video in course.videos %}
+<article class="row">
+  <div class="col-5">
+    ${video.iframe}
+  </div>
+  <div class="col-5">
+    <p>Title: ${video.title}</p>
+    <p>Description: ${video.description}</p>
+  </div>
+</article>
+{% endfor %}
+{% else %}
+<h3>This course currently has no videos in it.</h3>
+{% endif %}
+<form action="">
+  <button type="submit">Search videos</button>
+</form>
+{% endblock %}
