@@ -1,8 +1,13 @@
 import os
 
-from flask import Flask, render_template, g, session, request, jsonify
+from flask import Flask, render_template, g, session, request, jsonify, flash, redirect
 from flask_debugtoolbar import DebugToolbarExtension
+from sqlalchemy.exc import IntegrityError
 import requests
+
+
+from forms import UserAddForm, LoginForm, CourseAddForm
+
 
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 
@@ -29,9 +34,8 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
-#######################################
-# User signup/login/logout
-#######################################
+# CHANGE: take this line out after authentication is added in:
+# session[CURR_USER_KEY] = 1
 
 
 @app.before_request
@@ -103,10 +107,13 @@ def get_yt_videos(keyword):
     # create list of dicts containing info & data re: individual videos
     videos_data = create_list_of_videos(items)
 
+    # CHANGE: for now do not call the YT API to get the embeddable iframes; uncomment this after development mostly done
     # for every video in a list, call the fcn to add iframe to video
-    videos_complete = get_iframes(videos_data)
+    # videos_complete = get_iframes(videos_data)
+    # res_json = jsonify(videos_complete)
 
-    res_json = jsonify(videos_complete)
+    # CHANGE: when switching to rendering videos, remove this line
+    res_json = jsonify(videos_data)
 
     return res_json
 
@@ -173,7 +180,7 @@ def yt_videos(video_id):
 
 
 # *******************************
-# API ENDPOINT
+# API ENDPOINT ROUTE
 # *******************************
 
 
@@ -182,19 +189,18 @@ def search_videos():
     """API endpoint.
     Get videos from YouTube based on topic entered in search field."""
 
-    # get search form data - use a constant for now
+    # get search form data
     data = get_form_data()
     keyword = data["keyword"]
 
+    # CHANGE: delete comment below
     # do I need to check data for errors? It's only one input field, and it has the required attribute in the html.
     # validate the form data
     errors = validate_data(data)
 
-
     # if errors, return them
     if errors['errors']:
         return errors
-
 
     # no errors in data; get videos for the keyword searched
     res = get_yt_videos(keyword)
@@ -224,6 +230,11 @@ def homepage():
 # USER ROUTES
 # *******************************
 
+# TO DO:
+# 1. get likeCount and viewCount for each video from YT
+# 2. create route to delete a user
+# 3. create route to view user's created courses
+# 4. create route to view user's subscribed courses
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -293,6 +304,10 @@ def login():
 # COURSE ROUTES
 # *******************************
 
+# TO DO:
+# 1. Before adding a course to db, make sure there's not already a course by that name for that creator.
+# 2. Before adding a course to db, make sure the videos have been added and sequenced.
+# 3. Prevent subscriptions to a course if the creator is the logged in user?
 
 
 @app.route("/courses/new", methods=["GET", "POST"])
@@ -392,6 +407,9 @@ def add_video(course_id, video_id):
     # after adding the video, check to make sure it's in videos_courses with the right sequence number
 
     return redirect(f'courses/{course_id}/search-video')
+
+# CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
+
 
 @app.route('/courses/<int:course_id>/edit', methods=["GET", "POST"])
 def courses_edit(course_id):

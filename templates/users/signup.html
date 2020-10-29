@@ -1,3 +1,25 @@
+<!-- LOGGED OUT USERS ONLY:
+This page shows a form to register a new user. -->
 {% extends 'base.html' %}
+
 {% block content %}
+
+<div class="row justify-content-md-center">
+  <div class="col-md-7 col-lg-5">
+    <h2 class="join-message">Join to access your education today.</h2>
+    <form method="POST" id="user_form">
+      {{ form.hidden_tag() }}
+
+      {% for field in form if field.widget.input_type != 'hidden' %}
+      {% for error in field.errors %}
+      <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+      {{ field(placeholder=field.label.text, class="form-control") }}
+      {% endfor %}
+
+      <button class="btn btn-primary btn-lg btn-block">Sign me up!</button>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

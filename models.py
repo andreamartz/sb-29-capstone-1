@@ -2,7 +2,7 @@
 # CHANGE project name above
 
 from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy, UniqueConstraint,
+from flask_sqlalchemy import SQLAlchemy
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -49,8 +49,6 @@ class User(db.Model):
         db.Text,
         default="/static/images/default-pic.png",
     )
-
-    subscriptions = db.relationship('Subscription', backref='user')
 
     # def __repr__(self):
     #     """Create a readable, identifiable representation of user."""
@@ -106,26 +104,37 @@ class Course(db.Model):
         primary_key=True,
     )
 
-    popularity = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0,
-    )
+    # popularity = db.Column(
+    #     db.Integer,
+    #     nullable=False,
+    #     default=0,
+    # )
 
     title = db.Column(
         db.Text,
+        nullable=False,
     )
 
     creator_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
+        nullable=False,
     )
 
     db.UniqueConstraint(title, creator_id)
 
-    subscriptions = db.relationship('Subscription', backref='course')
+    creator = db.relationship('User', backref='courses')
 
-    videos_courses = db.relationship('VideoCourse', backref='course')
+    # CHANGE: this relationship is problematic because of the creator relationship which is also with the User model.
+    # subscribers = db.relationship(
+    #     'User', secondary='subscriptions', backref='courses')
+
+    videos = db.relationship(
+        'Video', secondary='videos_courses', backref='courses')
+
+    # def __repr__(self):
+    #     """Create a readable, identifiable representation of course."""
+    #     return f"<Course #{self.id}: {self.course.title}, {self.creator_id}email}>"
 
 
 class Video(db.Model):
@@ -157,21 +166,21 @@ class Video(db.Model):
         db.Text,
     )
 
-    iframe_html = db.Column(
+    iframe = db.Column(
         db.Text,
     )
 
-    viewCount = db.Column(
-        db.Integer,
-    )
+    # viewCount = db.Column(
+    #     db.Integer,
+    # )
 
-    likeCount = db.Column(
-        db.Integer,
-    )
+    # likeCount = db.Column(
+    #     db.Integer,
+    # )
 
-    pctlike = db.Column(
-        db.Integer,
-    )
+    # pctlike = db.Column(
+    #     db.Integer,
+    # )
 
     videos_courses = db.relationship('VideoCourse', backref='video')
 

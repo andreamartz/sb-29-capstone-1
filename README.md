@@ -3,6 +3,7 @@
 
 ## External API
 API: [YouTube Data API](https://developers.google.com/youtube/v3)
+I'm using two endpoints: one to get the video info and another to get the iframe HTML to embed for each video.
 
 ## Set up app
 * ?? Install PostgreSQL locally and make sure that it is running.
