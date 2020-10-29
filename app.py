@@ -5,6 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
 
+from forms import UserAddForm, LoginForm, CourseAddForm
 
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 
