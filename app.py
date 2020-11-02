@@ -61,9 +61,11 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-# ************************************
-# HELPER FUNCTIONS - search for videos
-# ************************************
+# ************************************************
+#
+# HELPER FUNCTIONS - Flask API search for videos
+#
+# ************************************************
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
@@ -230,7 +232,7 @@ def homepage():
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
-# 2. create route to delete a user
+# 2. create route to delete a user - need ????
 # 3. create route to view user's created courses
 # 4. create route to view user's subscribed courses
 
@@ -306,30 +308,24 @@ def login():
 # 1. Before adding a course to db, make sure there's not already a course by that name for that creator.
 # 2. Before adding a course to db, make sure the videos have been added and sequenced.
 # 3. Prevent subscriptions to a course if the creator is the logged in user?
+# 4. Create a route for non-creators to view the course details, such as the videos in a course.
+# 5. Create a route for creators to view and edit the course details, such as removing a video and re-ordering videos.
 
 
 @app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
     """Create a new course:
 
-    If GET: Show form. 
-    If POST and form validates, add course and redirect to course edit page. 
-    If form does not validate, re-present form."""
+    If GET: Show the course add form. 
+    If POST and form validates: 
+        * course title does not exist yet for this creator: add course and redirect to course edit page
+        * course does exist already for this creator:
+    If POST and form does not validate, re-present form."""
 
     # In this route:
-    # show the form to add a course
     # try: <code to add new course>
     # except: flash a message and redirect
     # after course is created, allow user to search for videos
-    # after the videos populate on the page, user can add videos to the course
-    # when a video is added to the course, it will first be added to the db, then to the course
-    # after the video is added to the course the video_seq will be
-
-    # Test:
-    # was a new course created successfully?
-    # does the new course have the expected creator_id?
-    # does the new course have the expected title?
-    # does the new course have a unique title among this creator's courses?
 
     # CHANGE: uncomment to require login
     # if not g.user:
@@ -361,14 +357,20 @@ def search_videos_form(course_id):
 
     course = Course.query.get_or_404(course_id)
 
+    # CHANGE: Right now, the videos searched disappear after a video is added to the course...
+    # CHANGE: ...When the user comes back to the search page, they have to start the search again.
+    # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
+
     return render_template('/courses/search-video.html', course=course)
 
 
 @app.route("/courses/<int:course_id>/add-video/<video_id>", methods=["POST"])
 def add_video(course_id, video_id):
     """This route does not have a view.
-    Add a video to database.
-    Add video to a course.
+    Check to see if the video is in the database already.
+    If not, add the video to database.
+    Check to see if the video is part of the course already.
+    If not, add the video to the course.
     Add video sequence number within the course."""
 
     # get video info from hidden form fields
