@@ -98,7 +98,7 @@ def validate_data(data):
 def get_yt_videos(keyword):
     """Get videos from YouTube API on a given topic."""
 
-    MAX_RESULTS = 5
+    MAX_RESULTS = 20
 
     # search for video data
     search_json = yt_search(keyword, MAX_RESULTS)
@@ -143,7 +143,7 @@ def create_list_of_videos(items):
 
         video_data = {}
         # add video data to video_data dict
-        video_data["id"] = video['id']['videoId']
+        video_data["ytVideoId"] = video['id']['videoId']
         video_data["title"] = video['snippet']['title']
         video_data["channelId"] = video['snippet']['channelId']
         video_data["channelTitle"] = video['snippet']['channelTitle']
@@ -160,8 +160,8 @@ def get_iframes(videos_data):
     """For every video in videos_data, add """
 
     for video in videos_data:
-        video_id = video["id"]
-        videos_json = yt_videos(video_id)
+        yt_video_id = video["ytVideoId"]
+        videos_json = yt_videos(yt_video_id)
         iframe = videos_json['items'][0]['player']['embedHtml']
         video['iframe'] = iframe
 
@@ -342,8 +342,11 @@ def courses_add():
         db.session.add(course)
         db.session.commit()
 
+        flash(
+            f'Your course "{course.title}" was created successfully.', 'success')
+
         # CHANGE where this redirects to
-        return redirect(f'/courses/{course.id}/edit')
+        return redirect(f'/courses/{course.id}/search-video')
 
     return render_template("courses/new.html", form=form)
 
