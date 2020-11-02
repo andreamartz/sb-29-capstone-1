@@ -406,15 +406,28 @@ def add_video_to_course(course_id, yt_video_id):
 
 @app.route('/courses/<int:course_id>/edit', methods=["GET", "POST"])
 def courses_edit(course_id):
-    """Display a form to edit a course.
+    """Display the videos in the course.
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
 
+    # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/add-video/<video_id' route
     # query to get the course from the db
     # the course's videos are in course.videos
-    # in the view, loop through the videos and display them
+    # in the view, loop through the videos and display them IN THE CORRECT ORDER for the course
 
+    # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
+    # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
     course = Course.query.get_or_404(course_id)
+    # videos_courses = course.videos_courses
+
+    videos_courses_asc = (VideoCourse
+                          .query
+                          .filter(VideoCourse.course_id == course_id)
+                          .order_by(VideoCourse.video_seq)
+                          .all())
+
+    return render_template("courses/edit.html", course=course, videos_courses=videos_courses_asc)
+
 # *********************************
 #
 # COURSE ROUTES HELPER FUNCTIONS
