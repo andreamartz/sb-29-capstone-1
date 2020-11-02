@@ -1,0 +1,9 @@
+/* CHANGE: is there a way to calculate this margin top to make it more dynamic/responsive? */
+.first-body-container {
+  margin-top: 70.375px;
+}
+
+/* searched videos or thumbnails are limited to the width of their container */
+.searched-item {
+  width: 100%;
+}
