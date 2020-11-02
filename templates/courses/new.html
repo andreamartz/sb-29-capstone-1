@@ -6,8 +6,8 @@
 {% block content %}
 <!-- Create a course -->
 <div class="row justify-content-center">
-  <div class="col-md-7">
-    <h1>Create a course</h1>
+  <div class="col-md-8">
+    <h1 class="display-1">Create a course</h1>
     <h2 class="join-message">Step 1: Enter a title to add a course.</h2>
     <form method="POST">
       {{ form.hidden_tag() }}
@@ -18,20 +18,21 @@
       {% endfor %}
       {{ field(placeholder=field.label.text, class="form-control") }}
       {% endfor %}
-      <button class="btn btn-primary btn-lg btn-block">Add course</button>
+      <button class="btn btn-primary btn-lg">Add course</button>
+      <p>Next, you will be taken to a site where you can search for videos to add to the course.</p>
     </form>
   </div>
 </div>
 <!-- Search for videos to add to course -->
-<div class="row justify-content-center">
+<!-- <div class="row justify-content-center">
   <div class="col-md-7">
-    <h2 class="join-message">Step 2: Search for videos to add to course.</h2>
-    <form action="/courses/add-video" method="GET">
+    <h2 class="join-message">Step 2: Search for videos to add to course.</h2> -->
+<!-- <form action="/courses/ course.id /search-video" method="GET">
       <input type="hidden">
       <button class="btn btn-primary btn-lg btn-block">Search videos</button>
-    </form>
-  </div>
-</div>
+    </form> -->
+<!-- </div> -->
+<!-- </div> -->
 
 
 {% endblock %}
