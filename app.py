@@ -61,9 +61,11 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-# ************************************
-# HELPER FUNCTIONS - search for videos
-# ************************************
+# ************************************************
+#
+# HELPER FUNCTIONS - Flask API search for videos
+#
+# ************************************************
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
@@ -230,7 +232,7 @@ def homepage():
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
-# 2. create route to delete a user
+# 2. create route to delete a user - need ????
 # 3. create route to view user's created courses
 # 4. create route to view user's subscribed courses
 
@@ -306,30 +308,24 @@ def login():
 # 1. Before adding a course to db, make sure there's not already a course by that name for that creator.
 # 2. Before adding a course to db, make sure the videos have been added and sequenced.
 # 3. Prevent subscriptions to a course if the creator is the logged in user?
+# 4. Create a route for non-creators to view the course details, such as the videos in a course.
+# 5. Create a route for creators to view and edit the course details, such as removing a video and re-ordering videos.
 
 
 @app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
     """Create a new course:
 
-    If GET: Show form. 
-    If POST and form validates, add course and redirect to course edit page. 
-    If form does not validate, re-present form."""
+    If GET: Show the course add form. 
+    If POST and form validates: 
+        * course title does not exist yet for this creator: add course and redirect to course edit page
+        * course does exist already for this creator:
+    If POST and form does not validate, re-present form."""
 
     # In this route:
-    # show the form to add a course
     # try: <code to add new course>
     # except: flash a message and redirect
     # after course is created, allow user to search for videos
-    # after the videos populate on the page, user can add videos to the course
-    # when a video is added to the course, it will first be added to the db, then to the course
-    # after the video is added to the course the video_seq will be
-
-    # Test:
-    # was a new course created successfully?
-    # does the new course have the expected creator_id?
-    # does the new course have the expected title?
-    # does the new course have a unique title among this creator's courses?
 
     # CHANGE: uncomment to require login
     # if not g.user:
@@ -361,50 +357,49 @@ def search_videos_form(course_id):
 
     course = Course.query.get_or_404(course_id)
 
+    # CHANGE: Right now, the videos searched disappear after a video is added to the course...
+    # CHANGE: ...When the user comes back to the search page, they have to start the search again.
+    # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
+
     return render_template('/courses/search-video.html', course=course)
 
 
-@app.route("/courses/<int:course_id>/add-video/<video_id>", methods=["POST"])
-def add_video(course_id, video_id):
+@app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
+def add_video_to_course(course_id, yt_video_id):
     """This route does not have a view.
-    Add a video to database.
-    Add video to a course.
+    Check to see if the video is in the database already.
+    If not, add the video to database.
+    Check to see if the video is part of the course already.
+    If not, add the video to the course.
     Add video sequence number within the course."""
 
-    # get video info from hidden form fields
-    id = request.form.get('v-id', None)
-    title = request.form.get('v-title', None)
-    description = request.form.get('v-description', None)
-    channelId = request.form.get('v-channelId', None)
-    channelTitle = request.form.get('v-channelTitle', None)
-    thumbUrl = request.form.get('v-thumbUrl', None)
-    iframe = request.form.get('v-iframe', None)
+    # create video & add to db if not already there
+    form_data = request.form
+    video = add_video_to_db(form_data, yt_video_id)
 
-    # CHANGE: TO DO:
-    # 1. Before adding a video to db, make sure it's not already been added.
-    # 2.
-
-    # create new video
-    video = Video(id=id,
-                  title=title,
-                  description=description,
-                  yt_channel_id=channelId,
-                  yt_channel_title=channelTitle,
-                  iframe=iframe)
-
-    # add new video to database
-    db.session.add(video)
-    db.session.commit()
-
-    # add video and sequence # to course
-    # to get the sequence #, do a query to get the count of videos in the course; this will be the index of the video once it's been added
-    # add the video to course, get its index in the list
+    # Query the db for this course
     course = Course.query.get_or_404(course_id)
+
+    # CHANGE: currently, if video is already part of course, redirect back to search page. this should be changed so that the "Add to course" button is deactivated (or the video isn't even displayed on the search page) if the video is already part of the course, so that the user never gets here.
+    # is the video already part of the course?
+    if video in course.videos:
+        flash("This video has already been added to the course.", "warning")
+        return redirect(f'../../../courses/{course_id}/search-video')
+
     video_seq = len(course.videos) + 1
 
-    # after adding the video, check to make sure it's in videos_courses with the right sequence number
+    # CHANGE: QUESTION: is this the best way to add a value to a join table???
+    video_course = VideoCourse(course_id=course_id,
+                               video_id=video.id,
+                               video_seq=video_seq)
 
-    return redirect(f'courses/{course_id}/search-video')
+    db.session.add(video_course)
+    db.session.commit()
+
+    flash("Good news! The video was successfully added to the course.", "success")
+
+    # CHANGE: why do I need all of the dots and slashes here, but not in other routes?
+    return redirect(f'../../../courses/{course_id}/search-video')
 
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
@@ -420,5 +415,40 @@ def courses_edit(course_id):
     # in the view, loop through the videos and display them
 
     course = Course.query.get_or_404(course_id)
+# *********************************
+#
+# COURSE ROUTES HELPER FUNCTIONS
+#
+# *********************************
+def add_video_to_db(form_data, yt_video_id):
+    """Add a video to the database."""
 
-    return render_template("courses/edit.html", course=course)
+    # CHANGE: should .first() be .one_or_none instead?
+    video = Video.query.filter(Video.yt_video_id == yt_video_id).first()
+
+    if not video:
+        # CHANGE: is there a more efficient way to do this?
+        # get video info from hidden form fields
+        # CHANGE: pull this out into a helper function
+        title = form_data.get('v-title', None)
+        description = form_data.get('v-description', None)
+        channelId = form_data.get('v-channelId', None)
+        channelTitle = form_data.get('v-channelTitle', None)
+        thumbUrl = form_data.get('v-thumbUrl', None)
+        iframe = form_data.get('v-iframe', None)
+
+        # create new video
+        # CHANGE: pull this out into a helper function
+        video = Video(title=title,
+                      description=description,
+                      yt_video_id=yt_video_id,
+                      yt_channel_id=channelId,
+                      yt_channel_title=channelTitle,
+                      thumbUrl=thumbUrl,
+                      iframe=iframe)
+
+        # add new video to database
+        db.session.add(video)
+        db.session.commit()
+
+    return video
