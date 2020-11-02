@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
+# CHANGE: TO DO: add cascading deletes
+
 
 class User(db.Model):
     """User of this app"""
@@ -132,6 +134,8 @@ class Course(db.Model):
     videos = db.relationship(
         'Video', secondary='videos_courses', backref='courses')
 
+    videos_courses = db.relationship("VideoCourse", backref="course")
+
     # def __repr__(self):
     #     """Create a readable, identifiable representation of course."""
     #     return f"<Course #{self.id}: {self.course.title}, {self.creator_id}email}>"
@@ -144,7 +148,7 @@ class Video(db.Model):
 
     # id comes from YouTube Data API
     id = db.Column(
-        db.Text,
+        db.Integer,
         primary_key=True,
     )
 
@@ -157,12 +161,21 @@ class Video(db.Model):
         db.Text,
     )
 
+    yt_video_id = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
     yt_channel_id = db.Column(
         db.Text,
         nullable=False,
     )
 
     yt_channel_title = db.Column(
+        db.Text,
+    )
+
+    thumbUrl = db.Column(
         db.Text,
     )
 
@@ -190,6 +203,11 @@ class Subscription(db.Model):
 
     __tablename__ = 'subscriptions'
 
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
     subscriber_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id', ondelete="cascade"),
@@ -202,26 +220,33 @@ class Subscription(db.Model):
         primary_key=True,
     )
 
+    db.UniqueConstraint(subscriber_id, course_id)
+
 
 class VideoCourse(db.Model):
     """Join table for videos and courses"""
     __tablename__ = 'videos_courses'
 
-    course_id = db.Column(
+    id = db.Column(
         db.Integer,
-        db.ForeignKey('courses.id', ondelete="cascade"),
         primary_key=True,
     )
 
+    course_id = db.Column(
+        db.Integer,
+        db.ForeignKey('courses.id', ondelete="cascade"),
+    )
+
     video_id = db.Column(
-        db.Text,
+        db.Integer,
         db.ForeignKey('videos.id', ondelete="cascade"),
-        primary_key=True,
     )
 
     video_seq = db.Column(
         db.Integer,
     )
+
+    db.UniqueConstraint(course_id, video_id)
 
 
 def connect_db(app):
