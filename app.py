@@ -168,8 +168,9 @@ def get_iframes(videos_data):
     return videos_data
 
 
-def yt_videos(video_id):
-    """"""
+def yt_videos(yt_video_id):
+    """Make API call to YouTube Data API.
+    Return the result in JSON format."""
 
     res = requests.get(
         f"{API_BASE_URL}/videos?part=player&id={video_id}&key={API_SECRET_KEY}"
@@ -182,7 +183,6 @@ def yt_videos(video_id):
 # *******************************
 # API ENDPOINT ROUTE
 # *******************************
-
 
 @app.route("/api/get-videos", methods=["GET", "POST"])
 def search_videos():
