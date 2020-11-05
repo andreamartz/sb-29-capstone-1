@@ -12,25 +12,47 @@ This view should be passed the course id-->
 
 {% extends 'base.html' %}
 {% block content %}
-
-<h1>Modify the course: {{ course.title }}</h1>
-<h2>Add, remove, or reorder the videos in this course.</h2>
-{% if course.videos %}
-{% for video in course.videos %}
-<article class="row">
-  <div class="col-5">
-    ${video.iframe}
+<div class="row justify-content-center">
+  <div class="col">
+    <h1 class="display-1">Modify a course</h1>
+    <h2>Remove or reorder the videos in the course:<br>
+      <i>{{ course.title }}</i></h2>
   </div>
-  <div class="col-5">
-    <p>Title: ${video.title}</p>
-    <p>Description: ${video.description}</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col">
+    {% if videos_courses %}
+    {% for vc in videos_courses %}
+    <article class="row mb-3 align-items-center">
+      <div class="col-6">
+        <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
+        <img src="{{ vc.video.thumbUrl }}" class="searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+        <!-- CHANGE: uncomment and turn into a variable to show iframe -->
+        <!-- video.iframe -->
+      </div>
+      <div class="col-6">
+        <h3><b>{{ vc.video.title }}</b></h3>
+        <h4>{{vc.video.description}}</h4>
+        <form action="" id="up-arrow">
+          <input type="hidden" id="course-id" name="course-id" value={{course.id}}>
+          <input type="hidden" id="curr-video-seq" name="curr-video-seq" value="vc.video-seq">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-sort-up"></i></button>
+        </form>
+        <form action="" id="down-arrow">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-sort-down"></i></button>
+        </form>
+        <form action="" id="remove-video">
+          <button type="submit" class="btn btn-primary">Remove video from course</button>
+        </form>
+      </div>
+    </article>
+    {% endfor %}
+    {% else %}
+    <h3>This course currently has no videos in it.</h3>
+    <form action="">
+      <button type="submit">Search videos</button>
+    </form>
+    {% endif %}
   </div>
-</article>
-{% endfor %}
-{% else %}
-<h3>This course currently has no videos in it.</h3>
-{% endif %}
-<form action="">
-  <button type="submit">Search videos</button>
-</form>
+</div>
 {% endblock %}

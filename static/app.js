@@ -38,7 +38,7 @@ function handleResponse(res) {
   } else {
     const videos = res['data'];
     for (let video of videos) {
-      const videoId = video['id'];
+      const ytVideoId = video['ytVideoId'];
       const title = video['title'];
       const channelId = video['channelId'];
       const channelTitle = video['channelTitle'];
@@ -48,18 +48,18 @@ function handleResponse(res) {
       // const iframe = video['iframe'];
 
       const article = document.createElement("article");
-      article.setAttribute("data-id", `${videoId}`);
-      article.setAttribute("class", "row");
+      article.setAttribute("data-id", `${ytVideoId}`);
+      article.setAttribute("class", "row mb-3 align-items-center");
       // CHANGE: when ready to display videos instead of thumbnails, first column should show ${iframe} instead of ${thumbUrl}
       article.innerHTML = 
-      `<div class="col-5">
-        <img src="${thumbUrl}">
+      `<div class="col-6">
+        <img src="${thumbUrl}" class="searched-item">
       </div>
-      <div class="col-5">
-        <p>Title: ${title}</p>
-        <p>Description: ${description}</p>
-        <form action="../../courses/${course_id}/add-video/${videoId}" method="POST">
-          <input type="hidden" id="v-id" name="v-id" value="${videoId}">
+      <div class="col-6">
+        <h3><b>${title}</b></h3>
+        <h4>${description}</h4>
+        <form action="../../courses/${course_id}/add-video/${ytVideoId}" method="POST">
+          <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
           <input type="hidden" id="v-title" name="v-title" value="${title}">
           <input type="hidden" id="v-description" name="v-description" value="${description}">
           <input type="hidden" id="v-channelId" name="v-channelId" value="${channelId}">

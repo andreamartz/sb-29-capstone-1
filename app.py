@@ -168,8 +168,9 @@ def get_iframes(videos_data):
     return videos_data
 
 
-def yt_videos(video_id):
-    """"""
+def yt_videos(yt_video_id):
+    """Make API call to YouTube Data API.
+    Return the result in JSON format."""
 
     res = requests.get(
         f"{API_BASE_URL}/videos?part=player&id={video_id}&key={API_SECRET_KEY}"
@@ -182,7 +183,6 @@ def yt_videos(video_id):
 # *******************************
 # API ENDPOINT ROUTE
 # *******************************
-
 
 @app.route("/api/get-videos", methods=["GET", "POST"])
 def search_videos():
@@ -221,9 +221,21 @@ def page_not_found(error):
 
 @app.route("/")
 def homepage():
-    """Show homepage."""
+    """Show homepage.
 
-    return render_template('home.html')
+    - anon users: no courses
+    - logged in: courses created
+    """
+    if g.user:
+        # query for the courses by this creator
+        courses = (Course
+                   .query
+                   .filter(Course.creator_id == g.user)
+                   .order_by(Course.title.asc())
+                   .all())
+        return render_template('home.html', courses=courses)
+    else:
+        return render_template('home-anon.html')
 
 
 # *******************************
