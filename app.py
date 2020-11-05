@@ -443,6 +443,46 @@ def courses_edit(course_id):
 
     return render_template("courses/edit.html", course=course, videos_courses=videos_courses_asc)
 
+
+@app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
+def courses_resequence(course_id):
+    """There is no view for this route.
+    Resequence the videos within a course.
+    """
+
+    # Query to get the course
+    course = Course.query.get_or_404(course_id)
+
+    # get the video data from the form
+    video_id = request.form.get('video-id')
+    vc_id = request.form.get('vc-id')
+    video_seq = int(request.form.get('video-seq'))
+
+    arrow = request.form.get('arrow')
+    arrow = int(arrow)
+
+    # CHANGE: vc and vc_switch should always have length one; what's the best way to rewrite this? .first()?
+    vc = VideoCourse.query.filter(
+        VideoCourse.id == vc_id
+    ).all()
+
+    vc_switch = VideoCourse.query.filter(
+        VideoCourse.course_id == course_id,
+        VideoCourse.video_seq == (video_seq + arrow)
+    ).all()
+
+    # update with new video_course_video_seq
+    temp_seq = -1
+    # curr_seq = video_seq
+    vc[0].video_seq = temp_seq
+    vc_switch[0].video_seq = video_seq
+    vc[0].video_seq = video_seq + arrow
+
+    db.session.commit()
+
+    # re-render the course edit page
+
+    return redirect(f'../../courses/{course_id}/edit')
 # *********************************
 #
 # COURSE ROUTES HELPER FUNCTIONS
