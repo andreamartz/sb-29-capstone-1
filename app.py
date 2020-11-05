@@ -221,9 +221,21 @@ def page_not_found(error):
 
 @app.route("/")
 def homepage():
-    """Show homepage."""
+    """Show homepage.
 
-    return render_template('home.html')
+    - anon users: no courses
+    - logged in: courses created
+    """
+    if g.user:
+        # query for the courses by this creator
+        courses = (Course
+                   .query
+                   .filter(Course.creator_id == g.user)
+                   .order_by(Course.title.asc())
+                   .all())
+        return render_template('home.html', courses=courses)
+    else:
+        return render_template('home-anon.html')
 
 
 # *******************************
