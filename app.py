@@ -483,6 +483,53 @@ def courses_resequence(course_id):
     # re-render the course edit page
 
     return redirect(f'../../courses/{course_id}/edit')
+@app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
+def remove_video(course_id):
+    """There is no view for this route.
+    Remove a video from a course.
+    If the video is only part of one course, also remove video from db.
+    """
+
+    # CHANGE: add to docstring if will also be re-sequencing the videos within the course
+
+    # Query to get the course
+    course = Course.query.get_or_404(course_id)
+    # get the video_id from the form
+    # CHANGE: should this be instead request.form.get('video-id', None)?
+    # potential advantage is to avoid an error?
+    video_id = request.form.get('video-id')
+
+    # get the video sequence number from the form
+    video_seq = int(request.form.get('video-seq'))
+
+    videos_courses = VideoCourse.query.filter(
+        VideoCourse.video_id == video_id).all()
+
+    # if no other courses use this video, remove the video from the db (the delete will cascade to the videos_courses table)
+    if len(videos_courses) == 1:
+        Video.query.filter(Video.id == video_id).delete()
+        db.session.commit()
+
+    # otherwise leave video in the db and remove the corresponding entry from videos_courses table only
+    else:
+        VideoCourse.query.filter(
+            VideoCourse.course_id == course.id,
+            VideoCourse.video_id == video_id
+        ).delete()
+        db.session.commit()
+
+    # resequence the remaining videos in the course - necessary? YES! to make re-sequencing arrows work properly
+    vc_reorder = VideoCourse.query.filter(
+        VideoCourse.course_id == course.id,
+        VideoCourse.video_seq > video_seq
+    )
+
+    for vc in vc_reorder:
+        vc.video_seq = vc.video_seq - 1
+
+    # re-render the course edit page without the removed video
+
+    return redirect(f'../../courses/{course_id}/edit')
 # *********************************
 #
 # COURSE ROUTES HELPER FUNCTIONS
