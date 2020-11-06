@@ -253,11 +253,12 @@ def homepage():
 def signup():
     """Handle user signup.
 
-    Create new user and add to DB. Redirect to home page.
+    Create new user and add to db. 
+    Log the user in and redirect to home page.
 
-    If form not valid, present form.
+    If form not valid, re-present form.
 
-    If the there already is a user with that username: flash message and re-present form.
+    If there already is a user with that username or email: flash message and re-present form.
     """
 
     if CURR_USER_KEY in session:
