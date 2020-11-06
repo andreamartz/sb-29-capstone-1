@@ -347,18 +347,28 @@ def courses_add():
     form = CourseAddForm()
 
     if form.validate_on_submit():
-        # CHANGE: verify that there is not already a course with this title
-        course = Course(title=form.title.data,
-                        creator_id=1)
+        # CHANGE: after login func added, stop hard-coding the creator_id
+        # check to see if course already exists for this creator
+        course = Course.query.filter(
+            Course.title == form.title.data, Course.creator_id == 1).first()
 
-        db.session.add(course)
-        db.session.commit()
+        if course:
+            flash("You have already created a course with this name.", "warning")
 
-        flash(
-            f'Your course "{course.title}" was created successfully.', 'success')
+        else:
 
-        # CHANGE where this redirects to
-        return redirect(f'/courses/{course.id}/search-video')
+            # CHANGE: after login functionality added, stop hard-coding the creator_id
+            course = Course(title=form.title.data,
+                            creator_id=1)
+
+            db.session.add(course)
+            db.session.commit()
+
+            flash(
+                f'Your course "{course.title}" was created successfully.', 'success')
+
+            # CHANGE where this redirects to
+            return redirect(f'/courses/{course.id}/search-video')
 
     return render_template("courses/new.html", form=form)
 
