@@ -15,35 +15,62 @@ This view should be passed the course id-->
 <div class="row justify-content-center">
   <div class="col">
     <h1 class="display-1">Modify a course</h1>
-    <h2>Remove or reorder the videos in the course:<br>
-      <i>{{ course.title }}</i></h2>
+    <h2>Add, remove, or reorder videos in the course:<br>
+      <i>{{ course.title }}</i>
+    </h2>
+    <h3>Click here to <a href="./search-video"> search for videos</a> to add to the course.</h3>
+    <h3>Remove or reorder the videos below:</h3>
   </div>
 </div>
 <div class="row justify-content-center">
   <div class="col">
     {% if videos_courses %}
     {% for vc in videos_courses %}
-    <article class="row mb-3 align-items-center">
-      <div class="col-6">
+    <article class="row mb-4 p-3 align-items-center border border-dark rounded">
+      <div class="col-5 image-container">
         <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
-        <img src="{{ vc.video.thumbUrl }}" class="searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+        <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item"
+          alt="thumbnail of video: {{ vc.video.title }}">
         <!-- CHANGE: uncomment and turn into a variable to show iframe -->
         <!-- video.iframe -->
       </div>
-      <div class="col-6">
-        <h3><b>{{ vc.video.title }}</b></h3>
-        <h4>{{vc.video.description}}</h4>
-        <form action="" id="up-arrow">
-          <input type="hidden" id="course-id" name="course-id" value={{course.id}}>
-          <input type="hidden" id="curr-video-seq" name="curr-video-seq" value="vc.video-seq">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-sort-up"></i></button>
-        </form>
-        <form action="" id="down-arrow">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-sort-down"></i></button>
-        </form>
-        <form action="" id="remove-video">
-          <button type="submit" class="btn btn-primary">Remove video from course</button>
-        </form>
+      <div class="col-7">
+        <p class="title"><b>{{ vc.video.title }}</b></p>
+        <p class="description">{{vc.video.description}}</p>
+        <div class="row mb-2 align-items-center justify-content-between">
+          <div class="col">
+            <!-- form for up arrow (sequence minus 1) -->
+            {% if vc.video_seq != 1 %}
+            <form action="/courses/{{ course.id }}/re-sequence" class="d-inline" method="POST">
+              <input type="hidden" name="course-id" value={{course.id}}>
+              <input type="hidden" name="vc-id" value={{vc.id}}>
+              <input type="hidden" name="video-seq" value={{vc.video_seq}}>
+              <input type="hidden" name="arrow" value="-1">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-up"></i></button>
+            </form>
+            {% endif %}
+            <!-- form for down arrow (sequence plus 1) -->
+            {% if vc.video_seq != (videos_courses | length) %}
+            <form action="/courses/{{ course.id }}/re-sequence" class="d-inline ml-2" method="POST">
+              <input type="hidden" name="course-id" value={{course.id}}>
+              <input type="hidden" name="vc-id" value={{vc.id}}>
+              <input type="hidden" name="video-seq" value={{vc.video_seq}}>
+              <input type="hidden" name="arrow" value="1">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-down"></i></button>
+            </form>
+            {% endif %}
+          </div>
+          <div class="col text-right">
+            <!-- CHANGE: is curr-video-seq still needed? -->
+            <form action="/courses/{{ course.id }}/remove-video" class="d-inline" method="POST">
+              <input type="hidden" name="course-id" value={{course.id}}>
+              <input type="hidden" name="video-seq" value={{vc.video_seq}}>
+              <input type="hidden" name="video-id" value={{vc.video.id}}>
+              <button type="submit" class="btn btn-primary">Remove from course</button>
+            </form>
+          </div>
+        </div>
+
       </div>
     </article>
     {% endfor %}
