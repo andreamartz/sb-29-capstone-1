@@ -1,9 +1,11 @@
 import os
 
 from flask import Flask, render_template, g, session, request, jsonify, flash, redirect
+
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
+
 
 from forms import UserAddForm, LoginForm, CourseAddForm
 
