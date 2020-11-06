@@ -244,10 +244,9 @@ def homepage():
 # *******************************
 
 # TO DO:
-# 1. get likeCount and viewCount for each video from YT
-# 2. create route to delete a user - need ????
-# 3. create route to view user's created courses
-# 4. create route to view user's subscribed courses
+# 1. create route to delete a user - need ????
+# 2. create route to view user's created courses
+# 3. create route to view user's subscribed courses
 
 
 @app.route('/signup', methods=["GET", "POST"])
