@@ -1,9 +1,11 @@
 import os
 
 from flask import Flask, render_template, g, session, request, jsonify, flash, redirect
+
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
+
 
 from forms import UserAddForm, LoginForm, CourseAddForm
 
@@ -16,8 +18,7 @@ API_BASE_URL = "https://www.googleapis.com/youtube/v3"
 
 app = Flask(__name__)
 
-# Get DB_URI from environ variable (useful for production/testing) or,
-# if not set there, use development local db.
+# Get DB_URI from environ variable (useful for production/testing) or, if not set there, use development local db.
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgres:///access-academy'))
@@ -173,7 +174,7 @@ def yt_videos(yt_video_id):
     Return the result in JSON format."""
 
     res = requests.get(
-        f"{API_BASE_URL}/videos?part=player&id={video_id}&key={API_SECRET_KEY}"
+        f"{API_BASE_URL}/videos?part=player&id={yt_video_id}&key={API_SECRET_KEY}"
     )
     videos_json = res.json()
 
@@ -230,7 +231,7 @@ def homepage():
         # query for the courses by this creator
         courses = (Course
                    .query
-                   .filter(Course.creator_id == g.user)
+                   .filter(Course.creator_id == g.user.id)
                    .order_by(Course.title.asc())
                    .all())
         return render_template('home.html', courses=courses)
@@ -243,21 +244,21 @@ def homepage():
 # *******************************
 
 # TO DO:
-# 1. get likeCount and viewCount for each video from YT
-# 2. create route to delete a user - need ????
-# 3. create route to view user's created courses
-# 4. create route to view user's subscribed courses
+# 1. create route to delete a user - need ????
+# 2. create route to view user's created courses
+# 3. create route to view user's subscribed courses
 
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
-    Create new user and add to DB. Redirect to home page.
+    Create new user and add to db. 
+    Log the user in and redirect to home page.
 
-    If form not valid, present form.
+    If form not valid, re-present form.
 
-    If the there already is a user with that username: flash message and re-present form.
+    If there already is a user with that username or email: flash message and re-present form.
     """
 
     if CURR_USER_KEY in session:
@@ -277,7 +278,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError as e:
-            flash("Username already taken", 'danger')
+            flash("Username or email already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -327,8 +328,8 @@ def logout():
 # *******************************
 
 # TO DO:
-# 1. Before adding a course to db, make sure there's not already a course by that name for that creator.
-# 2. Before adding a course to db, make sure the videos have been added and sequenced.
+# 1. get likeCount and viewCount for each video from YT
+# 2. create route to search for courses by title
 # 3. Prevent subscriptions to a course if the creator is the logged in user?
 # 4. Create a route for non-creators to view the course details, such as the videos in a course.
 # 5. Create a route for creators to view and edit the course details, such as removing a video and re-ordering videos.
@@ -378,12 +379,12 @@ def courses_add():
                 f'Your course "{course.title}" was created successfully.', 'success')
 
             # CHANGE where this redirects to
-            return redirect(f'/courses/{course.id}/search-video')
+            return redirect(f'/courses/{course.id}/videos/search')
 
     return render_template("courses/new.html", form=form)
 
 
-@app.route("/courses/<int:course_id>/search-video", methods=["GET"])
+@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
 
@@ -396,7 +397,9 @@ def search_videos_form(course_id):
     # CHANGE: ...When the user comes back to the search page, they have to start the search again.
     # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
 
-    return render_template('/courses/search-video.html', course=course)
+    return render_template('/videos/search.html', course=course)
+
+# CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
 
 
 @app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
@@ -439,16 +442,13 @@ def add_video_to_course(course_id, yt_video_id):
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
 
-@app.route('/courses/<int:course_id>/edit', methods=["GET", "POST"])
+@app.route('/courses/<int:course_id>/edit', methods=["GET"])
 def courses_edit(course_id):
     """Display the videos in the course.
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
 
     # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/add-video/<video_id' route
-    # query to get the course from the db
-    # the course's videos are in course.videos
-    # in the view, loop through the videos and display them IN THE CORRECT ORDER for the course
 
     # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
     # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
