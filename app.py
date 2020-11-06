@@ -26,8 +26,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
 
+toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
@@ -60,7 +60,6 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
-
 # ************************************************
 #
 # HELPER FUNCTIONS - Flask API search for videos
@@ -70,6 +69,7 @@ def do_logout():
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
 # 2.
+
 
 def get_form_data():
     """Get search data from client form."""
@@ -248,6 +248,7 @@ def homepage():
 # 3. create route to view user's created courses
 # 4. create route to view user's subscribed courses
 
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
@@ -307,6 +308,15 @@ def login():
     return render_template('users/login.html', form=form)
 
 
+@app.route('/logout')
+def logout():
+    """Handle logout of user."""
+
+    do_logout()
+
+    flash("You have successfully logged out.", 'success')
+    return redirect("/login")
+
 # *******************************
 # VIDEO ROUTES
 # *******************************
@@ -347,18 +357,28 @@ def courses_add():
     form = CourseAddForm()
 
     if form.validate_on_submit():
-        # CHANGE: verify that there is not already a course with this title
-        course = Course(title=form.title.data,
-                        creator_id=1)
+        # CHANGE: after login func added, stop hard-coding the creator_id
+        # check to see if course already exists for this creator
+        course = Course.query.filter(
+            Course.title == form.title.data, Course.creator_id == 1).first()
 
-        db.session.add(course)
-        db.session.commit()
+        if course:
+            flash("You have already created a course with this name.", "warning")
 
-        flash(
-            f'Your course "{course.title}" was created successfully.', 'success')
+        else:
 
-        # CHANGE where this redirects to
-        return redirect(f'/courses/{course.id}/search-video')
+            # CHANGE: after login functionality added, stop hard-coding the creator_id
+            course = Course(title=form.title.data,
+                            creator_id=1)
+
+            db.session.add(course)
+            db.session.commit()
+
+            flash(
+                f'Your course "{course.title}" was created successfully.', 'success')
+
+            # CHANGE where this redirects to
+            return redirect(f'/courses/{course.id}/search-video')
 
     return render_template("courses/new.html", form=form)
 
@@ -483,6 +503,8 @@ def courses_resequence(course_id):
     # re-render the course edit page
 
     return redirect(f'../../courses/{course_id}/edit')
+
+
 @app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
@@ -530,11 +552,14 @@ def remove_video(course_id):
     # re-render the course edit page without the removed video
 
     return redirect(f'../../courses/{course_id}/edit')
+
 # *********************************
 #
 # COURSE ROUTES HELPER FUNCTIONS
 #
 # *********************************
+
+
 def add_video_to_db(form_data, yt_video_id):
     """Add a video to the database."""
 
