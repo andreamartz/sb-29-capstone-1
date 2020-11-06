@@ -231,7 +231,7 @@ def homepage():
         # query for the courses by this creator
         courses = (Course
                    .query
-                   .filter(Course.creator_id == g.user)
+                   .filter(Course.creator_id == g.user.id)
                    .order_by(Course.title.asc())
                    .all())
         return render_template('home.html', courses=courses)
