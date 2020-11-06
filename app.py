@@ -379,12 +379,12 @@ def courses_add():
                 f'Your course "{course.title}" was created successfully.', 'success')
 
             # CHANGE where this redirects to
-            return redirect(f'/courses/{course.id}/search-video')
+            return redirect(f'/courses/{course.id}/videos/search')
 
     return render_template("courses/new.html", form=form)
 
 
-@app.route("/courses/<int:course_id>/search-video", methods=["GET"])
+@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
 
@@ -397,7 +397,7 @@ def search_videos_form(course_id):
     # CHANGE: ...When the user comes back to the search page, they have to start the search again.
     # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
 
-    return render_template('/courses/search-video.html', course=course)
+    return render_template('/videos/search.html', course=course)
 
 
 @app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
