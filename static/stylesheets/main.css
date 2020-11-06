@@ -3,7 +3,29 @@
   margin-top: 70.375px;
 }
 
+/* Nav */
+.nav-user-img {
+  width: 32px;
+  border-radius: 50%;
+}
+
 /* searched videos or thumbnails are limited to the width of their container */
 .searched-item {
-  width: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  overflow: hidden;
+}
+
+.image-container {
+  object-fit: cover;
+}
+
+/* "Cards": Video titles and descriptions */
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.description {
+  font-size: 1.1rem;
 }
