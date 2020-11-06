@@ -399,6 +399,8 @@ def search_videos_form(course_id):
 
     return render_template('/videos/search.html', course=course)
 
+# CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
+
 
 @app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
 def add_video_to_course(course_id, yt_video_id):
