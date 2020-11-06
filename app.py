@@ -328,8 +328,8 @@ def logout():
 # *******************************
 
 # TO DO:
-# 1. Before adding a course to db, make sure there's not already a course by that name for that creator.
-# 2. Before adding a course to db, make sure the videos have been added and sequenced.
+# 1. get likeCount and viewCount for each video from YT
+# 2. create route to search for courses by title
 # 3. Prevent subscriptions to a course if the creator is the logged in user?
 # 4. Create a route for non-creators to view the course details, such as the videos in a course.
 # 5. Create a route for creators to view and edit the course details, such as removing a video and re-ordering videos.
