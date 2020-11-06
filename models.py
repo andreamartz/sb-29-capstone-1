@@ -246,7 +246,7 @@ class VideoCourse(db.Model):
         db.Integer,
     )
 
-    db.UniqueConstraint(course_id, video_id)
+    db.UniqueConstraint(course_id, video_id, video_seq)
 
 
 def connect_db(app):
