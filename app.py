@@ -18,8 +18,7 @@ API_BASE_URL = "https://www.googleapis.com/youtube/v3"
 
 app = Flask(__name__)
 
-# Get DB_URI from environ variable (useful for production/testing) or,
-# if not set there, use development local db.
+# Get DB_URI from environ variable (useful for production/testing) or, if not set there, use development local db.
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgres:///access-academy'))
