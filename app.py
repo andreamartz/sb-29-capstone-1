@@ -26,8 +26,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
 
+toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
@@ -60,7 +60,6 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
-
 # ************************************************
 #
 # HELPER FUNCTIONS - Flask API search for videos
@@ -70,6 +69,7 @@ def do_logout():
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
 # 2.
+
 
 def get_form_data():
     """Get search data from client form."""
@@ -247,6 +247,7 @@ def homepage():
 # 2. create route to delete a user - need ????
 # 3. create route to view user's created courses
 # 4. create route to view user's subscribed courses
+
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -493,6 +494,8 @@ def courses_resequence(course_id):
     # re-render the course edit page
 
     return redirect(f'../../courses/{course_id}/edit')
+
+
 @app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
@@ -540,11 +543,14 @@ def remove_video(course_id):
     # re-render the course edit page without the removed video
 
     return redirect(f'../../courses/{course_id}/edit')
+
 # *********************************
 #
 # COURSE ROUTES HELPER FUNCTIONS
 #
 # *********************************
+
+
 def add_video_to_db(form_data, yt_video_id):
     """Add a video to the database."""
 
