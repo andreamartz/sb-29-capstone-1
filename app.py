@@ -308,6 +308,15 @@ def login():
     return render_template('users/login.html', form=form)
 
 
+@app.route('/logout')
+def logout():
+    """Handle logout of user."""
+
+    do_logout()
+
+    flash("You have successfully logged out.", 'success')
+    return redirect("/login")
+
 # *******************************
 # VIDEO ROUTES
 # *******************************
