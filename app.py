@@ -174,7 +174,7 @@ def yt_videos(yt_video_id):
     Return the result in JSON format."""
 
     res = requests.get(
-        f"{API_BASE_URL}/videos?part=player&id={video_id}&key={API_SECRET_KEY}"
+        f"{API_BASE_URL}/videos?part=player&id={yt_video_id}&key={API_SECRET_KEY}"
     )
     videos_json = res.json()
 
