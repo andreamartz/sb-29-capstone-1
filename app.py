@@ -422,7 +422,7 @@ def add_video_to_course(course_id, yt_video_id):
     # is the video already part of the course?
     if video in course.videos:
         flash("This video has already been added to the course.", "warning")
-        return redirect(f'../../../courses/{course_id}/search-video')
+        return redirect(f'../../../courses/{course_id}/videos/search')
 
     video_seq = len(course.videos) + 1
 
@@ -437,7 +437,7 @@ def add_video_to_course(course_id, yt_video_id):
     flash("Good news! The video was successfully added to the course.", "success")
 
     # CHANGE: why do I need all of the dots and slashes here, but not in other routes?
-    return redirect(f'../../../courses/{course_id}/search-video')
+    return redirect(f'../../../courses/{course_id}/videos/search')
 
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
