@@ -58,7 +58,7 @@ function handleResponse(res) {
       <div class="col-6">
         <h3><b>${title}</b></h3>
         <h4>${description}</h4>
-        <form action="../../courses/${course_id}/add-video/${ytVideoId}" method="POST">
+        <form action="../../../courses/${course_id}/add-video/${ytVideoId}" method="POST">
           <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
           <input type="hidden" id="v-title" name="v-title" value="${title}">
           <input type="hidden" id="v-description" name="v-description" value="${description}">
