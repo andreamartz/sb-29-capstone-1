@@ -23,9 +23,13 @@ class LoginForm(FlaskForm):
 
 
 class CourseAddForm(FlaskForm):
-    """Form for adding users."""
+    """Form for adding courses."""
 
     title = StringField('Course Title', validators=[InputRequired()])
+    description = StringField('Course Description',
+                              validators=[InputRequired()])
+
+
 class CourseSearchForm(FlaskForm):
     """Form for searching courses."""
 
