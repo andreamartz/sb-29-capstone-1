@@ -117,6 +117,10 @@ class Course(db.Model):
         nullable=False,
     )
 
+    description = db.Column(
+        db.Text,
+    )
+
     creator_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
