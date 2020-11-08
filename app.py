@@ -392,6 +392,25 @@ def courses_search():
     # display the courses (return render_template)
     form = CourseSearchForm()
 
+    if form.validate_on_submit():
+        phrase = form.phrase.data
+
+        if not phrase:
+            courses = Course.query.all()
+            flash('No search term found; showing all courses', "info")
+        else:
+            courses = Course.query.filter(
+                Course.title.like(f"%{phrase}%")).all()
+
+            if len(courses) == 0:
+                flash(
+                    f'There are no courses with titles similar to {phrase}.', "warning")
+            else:
+                flash(
+                    f'Showing courses with titles matching phrases similar to {phrase}', "info")
+
+        return render_template('courses/search.html', form=form, courses=courses)
+
     return render_template('/courses/search.html', form=form)
 
     # CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
