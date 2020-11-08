@@ -6,5 +6,32 @@
 This page will show:
 * for ALL USERS: the details for each course, such as title, creator username, and videos (in order)
 * for COURSE CREATOR: a delete button to remove the course, a delete button next to each video, a way to re-order courses
+-->
 
-This view should be passed the course id-->
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col">
+    <h1 class="display-1">Courses Search</h1>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      {% for field in form if field.widget.input_type != 'hidden' %}
+      {% for error in field.errors %}
+      <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+      {{ field(placeholder=field.label.text, class="form-control") }}
+      {% endfor %}
+
+      <button class="btn btn-primary btn-lg btn-block">Search</button>
+    </form>
+  </div>
+</div>
+<div class="row justify-content-center">
+  <div id="search-results" class="col">
+    <!-- Videos will be rendered by JavaScript. -->
+    <!-- Each video will be rendered with an "Add to course" button. -->
+
+  </div>
+</div>
+{% endblock %}
