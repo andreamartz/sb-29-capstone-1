@@ -53,7 +53,7 @@ function handleResponse(res) {
       // CHANGE: when ready to display videos instead of thumbnails, first column should show ${iframe} instead of ${thumbUrl}
       article.innerHTML = 
       `<div class="col-6">
-        <img src="${thumbUrl}" class="searched-item">
+        <img src="${thumbUrl}">
       </div>
       <div class="col-6">
         <h3><b>${title}</b></h3>
