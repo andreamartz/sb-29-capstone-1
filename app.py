@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 import requests
 
 
-from forms import UserAddForm, LoginForm, CourseAddForm
+from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
 
@@ -384,22 +384,17 @@ def courses_add():
     return render_template("courses/new.html", form=form)
 
 
-@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
-def search_videos_form(course_id):
-    """Display keyword search form and search results."""
+@app.route("/courses/search", methods=["GET", "POST"])
+def courses_search():
+    # get search phrase from form
 
-    # JavaScript is handling the form submission from this page.
-    # Flask API is handling the calls to YouTube Data API.
+    # query the db for matching courses
+    # display the courses (return render_template)
+    form = CourseSearchForm()
 
-    course = Course.query.get_or_404(course_id)
+    return render_template('/courses/search.html', form=form)
 
-    # CHANGE: Right now, the videos searched disappear after a video is added to the course...
-    # CHANGE: ...When the user comes back to the search page, they have to start the search again.
-    # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
-
-    return render_template('/videos/search.html', course=course)
-
-# CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
+    # CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
 
 
 @app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
