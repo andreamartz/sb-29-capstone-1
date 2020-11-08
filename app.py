@@ -356,8 +356,9 @@ def courses_add():
 
     If GET: Show the course add form. 
     If POST and form validates: 
-        * course title does not exist yet for this creator: add course and redirect to course edit page
+        * course title does not exist yet for this creator: add course and redirect to videos search page
         * course does exist already for this creator:
+        flash a message notifying the user of this
     If POST and form does not validate, re-present form."""
 
     # In this route:
@@ -385,6 +386,7 @@ def courses_add():
 
             # CHANGE: after login functionality added, stop hard-coding the creator_id
             course = Course(title=form.title.data,
+                            description=form.description.data,
                             creator_id=1)
 
             db.session.add(course)
