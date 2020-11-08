@@ -323,6 +323,21 @@ def logout():
 # *******************************
 
 
+@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
+def search_videos_form(course_id):
+    """Display keyword search form and search results."""
+
+    # JavaScript is handling the form submission from this page.
+    # Flask API is handling the calls to YouTube Data API.
+
+    course = Course.query.get_or_404(course_id)
+
+    # CHANGE: Right now, the videos searched disappear after a video is added to the course...
+    # CHANGE: ...When the user comes back to the search page, they have to start the search again.
+    # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
+
+    return render_template('/videos/search.html', course=course)
+
 # *******************************
 # COURSE ROUTES
 # *******************************
