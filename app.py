@@ -422,6 +422,7 @@ def courses_search():
             if len(courses) == 0:
                 flash(
                     f'There are no courses with titles similar to {phrase}.', "warning")
+
             else:
                 flash(
                     f'Showing courses with titles matching phrases similar to {phrase}', "info")
@@ -430,10 +431,8 @@ def courses_search():
 
     return render_template('/courses/search.html', form=form)
 
-    # CHANGE: make route to adding video to course RESTful: /courses/#/videos/add/#
 
-
-@app.route("/courses/<int:course_id>/add-video/<yt_video_id>", methods=["POST"])
+@app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
 def add_video_to_course(course_id, yt_video_id):
     """This route does not have a view.
     Check to see if the video is in the database already.
@@ -453,7 +452,7 @@ def add_video_to_course(course_id, yt_video_id):
     # is the video already part of the course?
     if video in course.videos:
         flash("This video has already been added to the course.", "warning")
-        return redirect(f'../../../courses/{course_id}/videos/search')
+        return redirect(f'../../../../courses/{course_id}/videos/search')
 
     video_seq = len(course.videos) + 1
 
@@ -468,7 +467,7 @@ def add_video_to_course(course_id, yt_video_id):
     flash("Good news! The video was successfully added to the course.", "success")
 
     # CHANGE: why do I need all of the dots and slashes here, but not in other routes?
-    return redirect(f'../../../courses/{course_id}/videos/search')
+    return redirect(f'../../../../courses/{course_id}/videos/search')
 
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
@@ -479,7 +478,7 @@ def courses_edit(course_id):
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
 
-    # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/add-video/<video_id' route
+    # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/videos/<video_id/add' route
 
     # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
     # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
