@@ -13,6 +13,10 @@
   object-fit: cover;
 }
 
+.course-img {
+  max-height: 180px;
+}
+
 /* "Cards": Video titles and descriptions */
 .title {
   font-size: 1.5rem;
