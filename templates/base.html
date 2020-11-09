@@ -35,11 +35,14 @@
         </li>
         {% else %}
         <li class="nav-item">
+          <a href="/courses/search" class="nav-link pr-4 text-light">Courses</a>
+        </li>
+        <li class="nav-item">
           <a href="/courses/new" class="nav-link pr-4 text-light">Create course</a>
         </li>
         <li class="nav-item">
           <!-- CHANGE: add a path for users to view/edit profile -->
-          <a href="/users/{{ g.user.id }}" class="nav-link pr-2 text-light">
+          <a href="" class="nav-link pr-2 text-light">
             <img src="{{ g.user.image_url }}" class="nav-user-img" alt="{{ g.user.username }}">
           </a>
         </li>
