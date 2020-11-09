@@ -34,10 +34,12 @@ This page will show:
     <article class="row mb-3 align-items-center" data-id="{{ course.id }}">
       <!-- Course Image -->
       <div class="col-6">
-        {% if course.videos[0].thumbUrl %}
+        {% if (course.videos | length) == 0 %}
+        <img src="../static/images/question-1015308_640.jpg" class="course-img justify-self-center" alt="">
+        {% elif course.videos[0].thumbUrl %}
         <img src="{{course.videos[0].thumbUrl}}" alt="">
         {% else %}
-        <img src="static/images/question-1015308_640.jpg" alt="">
+        <img src="../static/images/question-1015308_640.jpg" class="course-img justify-self-center" alt="">
         {% endif %}
       </div>
       <!-- Course title & description -->
@@ -46,12 +48,20 @@ This page will show:
         {% if course.description %}
         <h4>{{course.description}}</h4>
         {% endif %}
-        {% if not course.videos[0].thumbUrl %}
-        <small>Image by
+        {% if (course.videos | length) == 0 %}
+        <small>(Image by
           <a
             href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
             und Marco Lachmann-Anke</a> from <a
-            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay
+            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
+          </a>
+        </small>
+        {% elif not course.videos[0].thumbUrl %}
+        <small>(Image by
+          <a
+            href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
+            und Marco Lachmann-Anke</a> from <a
+            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
           </a>
         </small>
         {% endif %}
