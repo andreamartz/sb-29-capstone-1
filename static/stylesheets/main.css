@@ -9,13 +9,6 @@
   border-radius: 50%;
 }
 
-/* searched videos or thumbnails are limited to the width of their container */
-.searched-item {
-  object-fit: cover;
-  object-position: 50% 50%;
-  overflow: hidden;
-}
-
 .image-container {
   object-fit: cover;
 }

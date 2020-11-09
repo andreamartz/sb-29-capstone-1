@@ -28,10 +28,36 @@ This page will show:
   </div>
 </div>
 <div class="row justify-content-center">
-  <div id="search-results" class="col">
-    <!-- Videos will be rendered by JavaScript. -->
-    <!-- Each video will be rendered with an "Add to course" button. -->
-
+  <div class="col">
+    <!-- Courses will be rendered by Flask server. -->
+    {% for course in courses %}
+    <article class="row mb-3 align-items-center" data-id="{{ course.id }}">
+      <!-- Course Image -->
+      <div class="col-6">
+        {% if course.videos[0].thumbUrl %}
+        <img src="{{course.videos[0].thumbUrl}}" alt="">
+        {% else %}
+        <img src="static/images/question-1015308_640.jpg" alt="">
+        {% endif %}
+      </div>
+      <!-- Course title & description -->
+      <div class="col-6">
+        <h3><b>{{course.title}}</b></h3>
+        {% if course.description %}
+        <h4>{{course.description}}</h4>
+        {% endif %}
+        {% if not course.videos[0].thumbUrl %}
+        <small>Image by
+          <a
+            href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
+            und Marco Lachmann-Anke</a> from <a
+            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay
+          </a>
+        </small>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

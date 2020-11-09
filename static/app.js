@@ -43,7 +43,7 @@ function handleResponse(res) {
       const channelId = video['channelId'];
       const channelTitle = video['channelTitle'];
       const description = video['description'];
-      const thumbUrl = video["thumb_url_high"];
+      const thumbUrl = video["thumb_url_medium"];
       // CHANGE: uncomment this when app.py will start rendering videos, not thumbnails
       // const iframe = video['iframe'];
 
@@ -53,12 +53,12 @@ function handleResponse(res) {
       // CHANGE: when ready to display videos instead of thumbnails, first column should show ${iframe} instead of ${thumbUrl}
       article.innerHTML = 
       `<div class="col-6">
-        <img src="${thumbUrl}" class="searched-item">
+        <img src="${thumbUrl}" class="w-100">
       </div>
       <div class="col-6">
         <h3><b>${title}</b></h3>
         <h4>${description}</h4>
-        <form action="../../../courses/${course_id}/add-video/${ytVideoId}" method="POST">
+        <form action="../../../courses/${course_id}/videos/${ytVideoId}/add" method="POST">
           <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
           <input type="hidden" id="v-title" name="v-title" value="${title}">
           <input type="hidden" id="v-description" name="v-description" value="${description}">
