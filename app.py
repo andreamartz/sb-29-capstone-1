@@ -149,7 +149,7 @@ def create_list_of_videos(items):
         video_data["channelId"] = video['snippet']['channelId']
         video_data["channelTitle"] = video['snippet']['channelTitle']
         video_data["description"] = video['snippet']['description']
-        video_data["thumb_url_high"] = video['snippet']['thumbnails']['high']['url']
+        video_data["thumb_url_medium"] = video['snippet']['thumbnails']['high']['url']
 
         videos_data.append(video_data)
 
