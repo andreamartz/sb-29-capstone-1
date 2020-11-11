@@ -368,9 +368,10 @@ def search_videos_form(course_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    # CHANGE: Only course creator should be able to see this page
-
     course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user:
+        flash("You must be the course creator to view this page.", "danger")
 
     # CHANGE: Right now, the videos searched disappear after a video is added to the course...
     # CHANGE: ...When the user comes back to the search page, they have to start the search again.
@@ -388,7 +389,10 @@ def add_video_to_course(course_id, yt_video_id):
     If not, add the video to the course.
     Add video sequence number within the course."""
 
-    # CHANGE: Only course creators should be able to do this
+    course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user:
+        flash("You must be the course creator to view this page.", "danger")
 
     # create video & add to db if not already there
     form_data = request.form
@@ -452,7 +456,6 @@ def courses_add():
     form = CourseAddForm()
 
     if form.validate_on_submit():
-        # CHANGE: after login func added, stop hard-coding the creator_id
         # check to see if course already exists for this creator
         course = Course.query.filter(
             Course.title == form.title.data, Course.creator_id == g.user.id).first()
@@ -462,7 +465,6 @@ def courses_add():
 
         else:
 
-            # CHANGE: after login functionality added, stop hard-coding the creator_id
             course = Course(title=form.title.data,
                             description=form.description.data,
                             creator_id=g.user.id)
@@ -535,6 +537,10 @@ def courses_edit(course_id):
     # CHANGE: Only the course creator should be able to access this page.
 
     course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user:
+        flash("You must be the course creator to view this page.", "danger")
+
     # videos_courses = course.videos_courses
 
     videos_courses_asc = (VideoCourse
