@@ -370,7 +370,7 @@ def search_videos_form(course_id):
 
     course = Course.query.get_or_404(course_id)
 
-    if course.creator_id != g.user:
+    if course.creator_id != g.user.id:
         flash("You must be the course creator to view this page.", "danger")
 
     # CHANGE: Right now, the videos searched disappear after a video is added to the course...
@@ -391,7 +391,7 @@ def add_video_to_course(course_id, yt_video_id):
 
     course = Course.query.get_or_404(course_id)
 
-    if course.creator_id != g.user:
+    if course.creator_id != g.user.id:
         flash("You must be the course creator to view this page.", "danger")
 
     # create video & add to db if not already there
@@ -538,7 +538,7 @@ def courses_edit(course_id):
 
     course = Course.query.get_or_404(course_id)
 
-    if course.creator_id != g.user:
+    if course.creator_id != g.user.id:
         flash("You must be the course creator to view this page.", "danger")
 
     # videos_courses = course.videos_courses
