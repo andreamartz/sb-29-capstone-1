@@ -18,26 +18,27 @@ This view should be passed the course id-->
     <h2>Add, remove, or reorder videos in the course:<br>
       <i>{{ course.title }}</i>
     </h2>
-    <h3>Click here to <a href="./videos/search"> search for videos</a> to add to the course.</h3>
-    <h3>Remove or reorder the videos below:</h3>
+    <h3><a href="./videos/search">Search for videos</a> to add to the course.</h3>
+    <h3>Remove or reorder the videos using the arrow buttons.</h3>
   </div>
 </div>
-<div class="row justify-content-center">
-  <div class="col">
-    {% if videos_courses %}
-    {% for vc in videos_courses %}
-    <article class="row mb-4 p-3 align-items-center border border-dark rounded">
-      <div class="col-5 image-container">
-        <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
-        <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item"
-          alt="thumbnail of video: {{ vc.video.title }}">
-        <!-- CHANGE: uncomment and turn into a variable to show iframe -->
-        <!-- video.iframe -->
-      </div>
-      <div class="col-7">
-        <p class="title"><b>{{ vc.video.title }}</b></p>
-        <p class="description">{{vc.video.description}}</p>
-        <div class="row mb-2 align-items-center justify-content-between">
+{% if videos_courses %}
+{% for vc in videos_courses %}
+<div class="card mb-3">
+  <div class="row no-gutters justify-content-center">
+    <div class="col-8 col-md-4 image-container">
+      <!-- Course Image -->
+      <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
+      <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+      <!-- CHANGE: uncomment and turn into a variable to show iframe -->
+      <!-- video.iframe -->
+    </div>
+    <div class="col-8 col-md-8">
+      <div class="card-body card-body-style">
+        <!-- Course title & description -->
+        <h5 class="card-title">{{ vc.video.title}}</h5>
+        <p class="card-text">{{ vc.video.description }}</p>
+        <div class="row mb-2 align-items-end justify-content-between btn-container">
           <div class="col">
             <!-- form for up arrow (sequence minus 1) -->
             {% if vc.video_seq != 1 %}
@@ -60,26 +61,25 @@ This view should be passed the course id-->
             </form>
             {% endif %}
           </div>
-          <div class="col text-right">
+          <div class="col ml-5">
             <!-- CHANGE: is curr-video-seq still needed? -->
             <form action="/courses/{{ course.id }}/remove-video" class="d-inline" method="POST">
               <input type="hidden" name="course-id" value={{course.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="video-id" value={{vc.video.id}}>
-              <button type="submit" class="btn btn-primary">Remove from course</button>
+              <button type="submit" class="btn btn-primary">Remove</button>
             </form>
           </div>
         </div>
-
       </div>
-    </article>
-    {% endfor %}
-    {% else %}
-    <h3>This course currently has no videos in it.</h3>
-    <form action="">
-      <button type="submit">Search videos</button>
-    </form>
-    {% endif %}
+    </div>
   </div>
 </div>
+{% endfor %}
+{% else %}
+<h3>This course currently has no videos in it.</h3>
+<form action="">
+  <button type="submit">Search videos</button>
+</form>
+{% endif %}
 {% endblock %}

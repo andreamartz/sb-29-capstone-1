@@ -30,3 +30,7 @@
 .description {
   font-size: 1.1rem;
 }
+
+.card-body-style {
+  height: 100%;
+}
