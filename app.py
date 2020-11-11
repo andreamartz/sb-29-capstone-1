@@ -6,7 +6,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
 
-
 from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
@@ -246,7 +245,6 @@ def homepage():
 # TO DO:
 # 1. create route to delete a user - need ????
 # 2. create route to view user's created courses
-# 3. create route to view user's subscribed courses
 
 
 @app.route('/signup', methods=["GET", "POST"])
