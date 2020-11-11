@@ -11,10 +11,14 @@
 
 .image-container {
   object-fit: cover;
+  overflow: hidden;
 }
 
 .course-img {
-  max-height: 180px;
+  max-height: 280px;
+  max-width: 100%;
+  object-fit: contain;
+  overflow: hidden;
 }
 
 /* "Cards": Video titles and descriptions */

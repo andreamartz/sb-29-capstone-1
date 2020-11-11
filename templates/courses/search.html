@@ -10,64 +10,71 @@ This page will show:
 
 {% extends 'base.html' %}
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center mt-3 mb-5">
   <div class="col">
     <h1 class="display-1">Courses Search</h1>
     <form method="POST">
-      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.hidden_tag() }}
 
-      {% for field in form if field.widget.input_type != 'hidden' %}
-      {% for error in field.errors %}
-      <span class="text-danger">{{ error }}</span>
-      {% endfor %}
-      {{ field(placeholder=field.label.text, class="form-control") }}
-      {% endfor %}
-
-      <button class="btn btn-primary btn-lg btn-block">Search</button>
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        {% for error in field.errors %}
+        <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+        {{ field(placeholder=field.label.text, class="form-control") }}
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-lg-2">
+          <button class="btn btn-primary btn-lg btn-block">Search</button>
+        </div>
+      </div>
     </form>
   </div>
 </div>
-<div class="row justify-content-center">
-  <div class="col">
-    <!-- Courses will be rendered by Flask server. -->
-    {% for course in courses %}
-    <article class="row mb-3 align-items-center" data-id="{{ course.id }}">
+<!-- Courses will be rendered by Flask server. -->
+{% for course in courses %}
+<div class="card mb-3">
+  <div class="row no-gutters justify-content-center">
+    <div class="col-8 col-md-4 image-container">
       <!-- Course Image -->
-      <div class="col-6">
-        {% if (course.videos | length) == 0 %}
-        <img src="../static/images/question-1015308_640.jpg" class="course-img justify-self-center" alt="">
-        {% elif course.videos[0].thumbUrl %}
-        <img src="{{course.videos[0].thumbUrl}}" alt="">
-        {% else %}
-        <img src="../static/images/question-1015308_640.jpg" class="course-img justify-self-center" alt="">
-        {% endif %}
-      </div>
-      <!-- Course title & description -->
-      <div class="col-6">
-        <h3><b>{{course.title}}</b></h3>
+      {% if (course.videos | length) == 0 %}
+      <img src="../static/images/question-1015308_640.jpg" class="course-img" alt="">
+      {% elif course.videos[0].thumbUrl %}
+      <img src="{{course.videos[0].thumbUrl}}" class="course-img" alt="">
+      {% else %}
+      <img src="../static/images/question-1015308_640.jpg" class="course-img" alt="">
+      {% endif %}
+    </div>
+    <div class="col-8 col-md-8">
+      <div class="card-body">
+        <!-- Course title & description -->
+        <h5 class="card-title">{{course.title}}</h5>
         {% if course.description %}
-        <h4>{{course.description}}</h4>
+        <p class="card-text">{{course.description}}</p>
         {% endif %}
-        {% if (course.videos | length) == 0 %}
-        <small>(Image by
-          <a
-            href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
-            und Marco Lachmann-Anke</a> from <a
-            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
-          </a>
-        </small>
-        {% elif not course.videos[0].thumbUrl %}
-        <small>(Image by
-          <a
-            href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
-            und Marco Lachmann-Anke</a> from <a
-            href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
-          </a>
-        </small>
-        {% endif %}
+        <p class="card-text">
+          {% if (course.videos | length) == 0 %}
+          <small class="text-muted">(Image by
+            <a
+              href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
+              und Marco Lachmann-Anke</a> from <a
+              href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
+            </a>
+          </small class="text-muted">
+          {% elif not course.videos[0].thumbUrl %}
+          <small>(Image by
+            <a
+              href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
+              und Marco Lachmann-Anke</a> from <a
+              href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
+            </a>
+          </small>
+          {% endif %}
+        </p>
       </div>
-    </article>
-    {% endfor %}
+    </div>
   </div>
 </div>
+{% endfor %}
 {% endblock %}

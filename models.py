@@ -178,7 +178,7 @@ class Video(db.Model):
     yt_channel_title = db.Column(
         db.Text,
     )
-
+# CHANGE: thumbUrl should be thumb_url
     thumbUrl = db.Column(
         db.Text,
     )
