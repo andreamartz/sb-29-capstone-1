@@ -372,6 +372,7 @@ def search_videos_form(course_id):
 
     if course.creator_id != g.user.id:
         flash("You must be the course creator to view this page.", "danger")
+        return redirect("/")
 
     # CHANGE: Right now, the videos searched disappear after a video is added to the course...
     # CHANGE: ...When the user comes back to the search page, they have to start the search again.
@@ -392,7 +393,8 @@ def add_video_to_course(course_id, yt_video_id):
     course = Course.query.get_or_404(course_id)
 
     if course.creator_id != g.user.id:
-        flash("You must be the course creator to view this page.", "danger")
+        flash("Access unauthorized", "danger")
+        return redirect("/")
 
     # create video & add to db if not already there
     form_data = request.form
@@ -455,27 +457,25 @@ def courses_add():
 
     form = CourseAddForm()
 
+    # form validation
     if form.validate_on_submit():
         # check to see if course already exists for this creator
         course = Course.query.filter(
             Course.title == form.title.data, Course.creator_id == g.user.id).first()
 
+        # if course already exists
         if course:
-            flash("You have already created a course with this name.", "warning")
-
+            flash("You have already created a course with this name. Please choose a new name.", "warning")        
+        # if course does not yet exist, create it & save to db
         else:
-
             course = Course(title=form.title.data,
                             description=form.description.data,
                             creator_id=g.user.id)
-
             db.session.add(course)
             db.session.commit()
-
             flash(
                 f'Your course "{course.title}" was created successfully.', 'success')
 
-            # CHANGE where this redirects to
             return redirect(f'/courses/{course.id}/videos/search')
 
     return render_template("courses/new.html", form=form)
@@ -495,18 +495,19 @@ def courses_search():
 
     if form.validate_on_submit():
         phrase = form.phrase.data
-
+        # if no search phrase was provided by user
         if not phrase:
             courses = Course.query.all()
             flash('No search term found; showing all courses', "info")
+        # if search phrase was provided by user
         else:
             courses = Course.query.filter(
                 Course.title.like(f"%{phrase}%")).all()
-
+            # if no courses were returned from the search
             if len(courses) == 0:
                 flash(
                     f'There are no courses with titles similar to {phrase}.', "warning")
-
+            # if courses match the search
             else:
                 flash(
                     f'Showing courses with titles matching phrases similar to {phrase}', "info")
@@ -525,8 +526,6 @@ def courses_edit(course_id):
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
 
-    # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/videos/<video_id/add' route
-
     # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
     # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
 
@@ -534,14 +533,12 @@ def courses_edit(course_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    # CHANGE: Only the course creator should be able to access this page.
-
     course = Course.query.get_or_404(course_id)
 
+    # restrict access to the creator of this course
     if course.creator_id != g.user.id:
         flash("You must be the course creator to view this page.", "danger")
-
-    # videos_courses = course.videos_courses
+        return redirect("/")
 
     videos_courses_asc = (VideoCourse
                           .query
