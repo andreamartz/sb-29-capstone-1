@@ -1,4 +1,3 @@
-/* CHANGE: is there a way to calculate this margin top to make it more dynamic/responsive? */
 .first-body-container {
   margin-top: 70.375px;
 }
@@ -22,15 +21,6 @@
 }
 
 /* "Cards": Video titles and descriptions */
-.title {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.description {
-  font-size: 1.1rem;
-}
-
-.card-body-style {
-  height: 100%;
+.card-footer-style {
+  border-top: none;
 }
