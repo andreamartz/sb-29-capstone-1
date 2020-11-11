@@ -14,12 +14,12 @@ This view should be passed the course id-->
 {% block content %}
 <div class="row justify-content-center">
   <div class="col">
-    <h1 class="display-1">Modify a course</h1>
-    <h2>Add, remove, or reorder videos in the course:<br>
+    <h1>Modify a course</h1>
+    <p>Add, remove, or reorder videos in the course:
       <i>{{ course.title }}</i>
-    </h2>
-    <h3><a href="./videos/search">Search for videos</a> to add to the course.</h3>
-    <h3>Remove or reorder the videos using the arrow buttons.</h3>
+    </p>
+    <p><a href="./videos/search">Search for videos</a> to add to the course.</p>
+    <p>Remove or reorder the videos using the arrow buttons.</p>
   </div>
 </div>
 {% if videos_courses %}
@@ -38,8 +38,10 @@ This view should be passed the course id-->
         <!-- Course title & description -->
         <h5 class="card-title">{{ vc.video.title}}</h5>
         <p class="card-text">{{ vc.video.description }}</p>
-        <div class="row mb-2 align-items-end justify-content-between btn-container">
-          <div class="col">
+      </div>
+      <div class="card-footer card-footer-style">
+        <div class="row mb-2 align-items-end justify-content-start btn-container">
+          <div class="col-6 col-sm-6 col-md-4 col-lg-3">
             <!-- form for up arrow (sequence minus 1) -->
             {% if vc.video_seq != 1 %}
             <form action="/courses/{{ course.id }}/re-sequence" class="d-inline" method="POST">
@@ -61,7 +63,7 @@ This view should be passed the course id-->
             </form>
             {% endif %}
           </div>
-          <div class="col ml-5">
+          <div class="col-6 col-sm-4 col-lg-3">
             <!-- CHANGE: is curr-video-seq still needed? -->
             <form action="/courses/{{ course.id }}/remove-video" class="d-inline" method="POST">
               <input type="hidden" name="course-id" value={{course.id}}>
