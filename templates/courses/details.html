@@ -1,0 +1,40 @@
+<!-- LOGGED IN USERS ONLY:
+This page will show:
+* for ALL USERS: the details for each course, such as title, creator username, and videos (in order)-->
+
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="top-section mb-5">View videos in course: <i>{{ course.title }}</i></h1>
+<!-- Allow course creator to add videos to the course. -->
+{% if course.creator_id == user.id %}
+<p class="h4 mb-5"><a href="/courses/{{ course.id }}/videos/search">Search for videos</a> to add to this course.</p>
+{% endif %}
+
+{% if videos_courses %}
+{% for vc in videos_courses %}
+<div class="card mb-3">
+  <div class="row no-gutters justify-content-center">
+    <div class="col-8 col-md-4 image-container">
+      <!-- Course Image -->
+      <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
+      <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+      <!-- CHANGE: uncomment and turn into a variable to show iframe -->
+      <!-- video.iframe -->
+    </div>
+    <div class="col-8 col-md-8">
+      <div class="card-body card-body-style">
+        <!-- Course title & description -->
+        <p class="card-title h5">{{ vc.video.title}}</p>
+        <p class="card-text">{{ vc.video.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<p class="h4 mb-5">This course currently has no videos in it.</p>
+<form action="/courses/{{ course.id }}/videos/search">
+  <button type="submit" class="btn btn-lg btn-primary">Search videos</button>
+</form>
+{% endif %}
+{% endblock %}
