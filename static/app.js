@@ -47,32 +47,36 @@ function handleResponse(res) {
       // CHANGE: uncomment this when app.py will start rendering videos, not thumbnails
       // const iframe = video['iframe'];
 
-      const article = document.createElement("article");
-      article.setAttribute("data-id", `${ytVideoId}`);
-      article.setAttribute("class", "row mb-3 align-items-center");
+      const div = document.createElement("div");
+      div.setAttribute("data-id", `${ytVideoId}`);
+      div.setAttribute("class", "card mb-3");
       // CHANGE: when ready to display videos instead of thumbnails, first column should show ${iframe} instead of ${thumbUrl}
-      article.innerHTML = 
-      `<div class="col-6">
-        <img src="${thumbUrl}" class="w-100">
-      </div>
-      <div class="col-6">
-        <h3><b>${title}</b></h3>
-        <h4>${description}</h4>
-        <form action="../../../courses/${course_id}/videos/${ytVideoId}/add" method="POST">
-          <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
-          <input type="hidden" id="v-title" name="v-title" value="${title}">
-          <input type="hidden" id="v-description" name="v-description" value="${description}">
-          <input type="hidden" id="v-channelId" name="v-channelId" value="${channelId}">
-          <input type="hidden" id="v-channelTitle" name="v-channelTitle" value="${channelTitle}">
-          <input type="hidden" id="v-thumbUrl" name="v-thumbUrl" value="${thumbUrl}">
-          <button type="submit" class="btn btn-primary">Add to course</button>
-        </form>
+      div.innerHTML = 
+      `<div class="row no-gutters justify-content-center">
+        <div class="col-8 col-md-4 image-container">
+          <img src="${thumbUrl}" class="course-img">
+        </div>
+        <div class="col-8 col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">${title}</h5>
+            <p class="card-text">${description}</p>
+            <form action="../../../courses/${course_id}/videos/${ytVideoId}/add" method="POST">
+              <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
+              <input type="hidden" id="v-title" name="v-title" value="${title}">
+              <input type="hidden" id="v-description" name="v-description" value="${description}">
+              <input type="hidden" id="v-channelId" name="v-channelId" value="${channelId}">
+              <input type="hidden" id="v-channelTitle" name="v-channelTitle" value="${channelTitle}">
+              <input type="hidden" id="v-thumbUrl" name="v-thumbUrl" value="${thumbUrl}">
+              <button type="submit" class="btn btn-primary">Add to course</button>
+            </form>
+          </div>
+        </div>
       </div>`;
       // CHANGE: add the following back to the article's innerHTML above when app.py will start rendering videos, not thumbnails
       // <input type="hidden" id="v-iframe" name="v-iframe" value="${iframe}">
 
       searchResults.append(
-        article
+        div
       );
     }
     form.reset();
