@@ -1,13 +1,14 @@
 <!-- LOGGED IN USERS ONLY:
-This page will show:
-* for ALL USERS: the details for each course, such as title, creator username, and videos (in order)-->
+This page will show ALL logged in users:
+* the details for each course, such as course title, description, and videos (in order)-->
 
 {% extends 'base.html' %}
 {% block content %}
 <h1 class="top-section mb-5">View videos in course: <i>{{ course.title }}</i></h1>
 <!-- Allow course creator to add videos to the course. -->
 {% if course.creator_id == user.id %}
-<p class="h4 mb-5"><a href="/courses/{{ course.id }}/videos/search">Search for videos</a> to add to this course.</p>
+<p class="h4 mb-3"><a href="/courses/{{ course.id }}/videos/search">Search for videos</a> to add to this course.</p>
+<p class="h4 mb-5"><a href="/courses/{{ course.id }}/edit">Modify</a> this course.</p>
 {% endif %}
 
 {% if videos_courses %}
@@ -17,7 +18,10 @@ This page will show:
     <div class="col-8 col-md-4 image-container">
       <!-- Course Image -->
       <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
-      <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+      <a href="https://www.youtube.com/watch?v={{ vc.video.yt_video_id }}" target="_blank" rel="noreferrer noopener">
+        <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item"
+          alt="thumbnail of video: {{ vc.video.title }}">
+      </a>
       <!-- CHANGE: uncomment and turn into a variable to show iframe -->
       <!-- video.iframe -->
     </div>
