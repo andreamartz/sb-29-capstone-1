@@ -87,7 +87,6 @@ def validate_data(data):
     errors = {'errors': {}}
 
     # if keyword missing from form
-    # CHANGE (resolve this comment and remove): I think I need this check, because otherwise an empty string would be submitted to search? Check this.
     if not data['keyword']:
         keyword_err = ["This field is required."]
         errors['errors']['keyword'] = keyword_err
@@ -431,8 +430,6 @@ def add_video_to_course(course_id, yt_video_id):
 
 # CHANGE TO DO:
 # 1. get likeCount and viewCount for each video from YT
-# 2. create route to search for courses by title
-# 3. Create a route for non-creators to view the course details, such as the videos in a course.
 
 
 @ app.route("/courses/new", methods=["GET", "POST"])
