@@ -2,9 +2,12 @@
   This page will show the user login form. -->
 {% extends 'base.html' %}
 {% block content %}
+<div class="row justify-content-center mb-4">
+  <h1>Access Academy</h1>
+</div>
 <div class="row justify-content-md-center">
   <div class="col-md-7 col-lg-5">
-    <h2 class="join-message">Welcome back.</h2>
+    <p class="h3 join-message text-center mb-5">Welcome back.</p>
 
     <form method="POST" id="user_form">
       {{ form.hidden_tag() }}
@@ -13,7 +16,7 @@
       {% for error in field.errors %}
       <span class="text-danger">{{ error }}</span>
       {% endfor %}
-      {{ field(placeholder=field.label.text, class="form-control") }}
+      {{ field(placeholder=field.label.text, class="form-control mb-3") }}
       {% endfor %}
 
       <button class="btn btn-primary btn-block btn-lg">Log in</button>
