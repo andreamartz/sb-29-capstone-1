@@ -2,6 +2,11 @@
   margin-top: 70.375px;
 }
 
+.svg {
+  max-width: 45%;
+  height: auto;
+}
+
 /* Nav */
 .nav-user-img {
   width: 32px;
@@ -13,6 +18,7 @@
   overflow: hidden;
 }
 
+/* "Cards": Video titles and descriptions */
 .course-img {
   max-height: 280px;
   max-width: 100%;
@@ -20,7 +26,6 @@
   overflow: hidden;
 }
 
-/* "Cards": Video titles and descriptions */
 .card-footer-style {
   border-top: none;
 }
