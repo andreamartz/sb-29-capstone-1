@@ -82,7 +82,7 @@ def get_form_data():
 
 
 def validate_data(data):
-    """Check for missing dataa from client."""
+    """Check for missing data from client."""
 
     errors = {'errors': {}}
 
