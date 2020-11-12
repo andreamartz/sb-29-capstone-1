@@ -12,10 +12,11 @@ db.create_all()
 print('************************')
 
 with open('generator/users.csv') as users:
-    print('hello *********')
     print(DictReader(users))
 
     db.session.bulk_insert_mappings(User, DictReader(users))
+
+print('************************')
 
 with open('generator/courses.csv') as courses:
     reader = csv.DictReader(courses)

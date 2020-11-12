@@ -1,12 +1,10 @@
-<!-- Consider deleting this route if the same functionality will remain
-on the course edit route -->
-
 {% extends 'base.html' %}
 {% block content %}
 <div class="row justify-content-center mt-3 mb-5">
   <div class="col">
-    <h1 class="display-1">Video Search</h1>
-    <h2>Step 2. Search for a video to add to the course: <br><i>{{ course.title }}</i></h2>
+    <h1 class="top-section mb-5">Video Search</h1>
+    <p class="h4 my-4">Step 2. Search for a video to add to the course <i>{{ course.title }}</i></p>
+    <p class="h4 my-4">You can also view<a href="/courses/{{ course.id }}/details"> all videos</a> in the course.</p>
     <form id="keyword-search-form">
       <div class="form-group">
         <label for="keyword">Enter a keyword or phrase to search for videos</label>

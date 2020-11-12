@@ -6,7 +6,6 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
 
-
 from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 
 from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
@@ -83,12 +82,11 @@ def get_form_data():
 
 
 def validate_data(data):
-    """Check for missing dataa from client."""
+    """Check for missing data from client."""
 
     errors = {'errors': {}}
 
     # if keyword missing from form
-    # CHANGE (resolve this comment and remove): I think I need this check, because otherwise an empty string would be submitted to search? Check this.
     if not data['keyword']:
         keyword_err = ["This field is required."]
         errors['errors']['keyword'] = keyword_err
@@ -225,16 +223,10 @@ def homepage():
     """Show homepage.
 
     - anon users: no courses
-    - logged in: courses created
+    - logged in: button to navigate to page to search for courses
     """
     if g.user:
-        # query for the courses by this creator
-        courses = (Course
-                   .query
-                   .filter(Course.creator_id == g.user.id)
-                   .order_by(Course.title.asc())
-                   .all())
-        return render_template('home.html', courses=courses)
+        return render_template('home.html')
     else:
         return render_template('home-anon.html')
 
@@ -246,14 +238,13 @@ def homepage():
 # TO DO:
 # 1. create route to delete a user - need ????
 # 2. create route to view user's created courses
-# 3. create route to view user's subscribed courses
 
 
-@app.route('/signup', methods=["GET", "POST"])
+@ app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
-    Create new user and add to db. 
+    Create new user and add to db.
     Log the user in and redirect to home page.
 
     If form not valid, re-present form.
@@ -289,7 +280,7 @@ def signup():
         return render_template('users/signup.html', form=form)
 
 
-@app.route('/login', methods=["GET", "POST"])
+@ app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
 
@@ -309,7 +300,7 @@ def login():
     return render_template('users/login.html', form=form)
 
 
-@app.route('/logout')
+@ app.route('/logout')
 def logout():
     """Handle logout of user."""
 
@@ -318,19 +309,69 @@ def logout():
     flash("You have successfully logged out.", 'success')
     return redirect("/login")
 
+
+# *********************************
+#
+# VIDEO ROUTE HELPER FUNCTION
+#
+# *********************************
+
+
+def add_video_to_db(form_data, yt_video_id):
+    """Add a video to the database."""
+
+    # CHANGE: should .first() be .one_or_none instead?
+    video = Video.query.filter(Video.yt_video_id == yt_video_id).first()
+
+    if not video:
+        # CHANGE: is there a more efficient way to do this?
+        # get video info from hidden form fields
+        # CHANGE: pull this out into a helper function
+        title = form_data.get('v-title', None)
+        description = form_data.get('v-description', None)
+        channelId = form_data.get('v-channelId', None)
+        channelTitle = form_data.get('v-channelTitle', None)
+        thumbUrl = form_data.get('v-thumbUrl', None)
+        iframe = form_data.get('v-iframe', None)
+
+        # create new video
+        # CHANGE: pull this out into a helper function
+        video = Video(title=title,
+                      description=description,
+                      yt_video_id=yt_video_id,
+                      yt_channel_id=channelId,
+                      yt_channel_title=channelTitle,
+                      thumbUrl=thumbUrl,
+                      iframe=iframe)
+
+        # add new video to database
+        db.session.add(video)
+        db.session.commit()
+
+    return video
+
+
 # *******************************
 # VIDEO ROUTES
 # *******************************
 
 
-@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
+@ app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
 
     # JavaScript is handling the form submission from this page.
     # Flask API is handling the calls to YouTube Data API.
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user.id:
+        flash("You must be the course creator to view this page.", "danger")
+        return redirect("/")
 
     # CHANGE: Right now, the videos searched disappear after a video is added to the course...
     # CHANGE: ...When the user comes back to the search page, they have to start the search again.
@@ -338,101 +379,8 @@ def search_videos_form(course_id):
 
     return render_template('/videos/search.html', course=course)
 
-# *******************************
-# COURSE ROUTES
-# *******************************
 
-# TO DO:
-# 1. get likeCount and viewCount for each video from YT
-# 2. create route to search for courses by title
-# 3. Prevent subscriptions to a course if the creator is the logged in user?
-# 4. Create a route for non-creators to view the course details, such as the videos in a course.
-# 5. Create a route for creators to view and edit the course details, such as removing a video and re-ordering videos.
-
-
-@app.route("/courses/new", methods=["GET", "POST"])
-def courses_add():
-    """Create a new course:
-
-    If GET: Show the course add form. 
-    If POST and form validates: 
-        * course title does not exist yet for this creator: add course and redirect to videos search page
-        * course does exist already for this creator:
-        flash a message notifying the user of this
-    If POST and form does not validate, re-present form."""
-
-    # In this route:
-    # try: <code to add new course>
-    # except: flash a message and redirect
-    # after course is created, allow user to search for videos
-
-    # CHANGE: uncomment to require login
-    # if not g.user:
-    #     flash("Access unauthorized.", "danger")
-    #     return redirect("/")
-
-    form = CourseAddForm()
-
-    if form.validate_on_submit():
-        # CHANGE: after login func added, stop hard-coding the creator_id
-        # check to see if course already exists for this creator
-        course = Course.query.filter(
-            Course.title == form.title.data, Course.creator_id == 1).first()
-
-        if course:
-            flash("You have already created a course with this name.", "warning")
-
-        else:
-
-            # CHANGE: after login functionality added, stop hard-coding the creator_id
-            course = Course(title=form.title.data,
-                            description=form.description.data,
-                            creator_id=1)
-
-            db.session.add(course)
-            db.session.commit()
-
-            flash(
-                f'Your course "{course.title}" was created successfully.', 'success')
-
-            # CHANGE where this redirects to
-            return redirect(f'/courses/{course.id}/videos/search')
-
-    return render_template("courses/new.html", form=form)
-
-
-@app.route("/courses/search", methods=["GET", "POST"])
-def courses_search():
-    # get search phrase from form
-
-    # query the db for matching courses
-    # display the courses (return render_template)
-    form = CourseSearchForm()
-
-    if form.validate_on_submit():
-        phrase = form.phrase.data
-
-        if not phrase:
-            courses = Course.query.all()
-            flash('No search term found; showing all courses', "info")
-        else:
-            courses = Course.query.filter(
-                Course.title.like(f"%{phrase}%")).all()
-
-            if len(courses) == 0:
-                flash(
-                    f'There are no courses with titles similar to {phrase}.', "warning")
-
-            else:
-                flash(
-                    f'Showing courses with titles matching phrases similar to {phrase}', "info")
-
-        return render_template('courses/search.html', form=form, courses=courses)
-
-    return render_template('/courses/search.html', form=form)
-
-
-@app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
+@ app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
 def add_video_to_course(course_id, yt_video_id):
     """This route does not have a view.
     Check to see if the video is in the database already.
@@ -440,6 +388,12 @@ def add_video_to_course(course_id, yt_video_id):
     Check to see if the video is part of the course already.
     If not, add the video to the course.
     Add video sequence number within the course."""
+
+    course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user.id:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
 
     # create video & add to db if not already there
     form_data = request.form
@@ -469,6 +423,97 @@ def add_video_to_course(course_id, yt_video_id):
     # CHANGE: why do I need all of the dots and slashes here, but not in other routes?
     return redirect(f'../../../../courses/{course_id}/videos/search')
 
+
+# *******************************
+# COURSE ROUTES
+# *******************************
+
+# CHANGE TO DO:
+# 1. get likeCount and viewCount for each video from YT
+
+
+@ app.route("/courses/new", methods=["GET", "POST"])
+def courses_add():
+    """Create a new course:
+
+    If GET: Show the course add form.
+    If POST and form validates:
+        * course title does not exist yet for this creator: add course and redirect to videos search page
+        * course does exist already for this creator:
+        flash a message notifying the user of this
+    If POST and form does not validate, re-present form."""
+
+    # In this route:
+    # try: <code to add new course>
+    # except: flash a message and redirect
+    # after course is created, allow user to search for videos
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = CourseAddForm()
+
+    # form validation
+    if form.validate_on_submit():
+        # check to see if course already exists for this creator
+        course = Course.query.filter(
+            Course.title == form.title.data, Course.creator_id == g.user.id).first()
+
+        # if course already exists
+        if course:
+            flash("You have already created a course with this name. Please choose a new name.", "warning")        
+        # if course does not yet exist, create it & save to db
+        else:
+            course = Course(title=form.title.data,
+                            description=form.description.data,
+                            creator_id=g.user.id)
+            db.session.add(course)
+            db.session.commit()
+            flash(
+                f'Your course "{course.title}" was created successfully.', 'success')
+
+            return redirect(f'/courses/{course.id}/videos/search')
+
+    return render_template("courses/new.html", form=form)
+
+
+@ app.route("/courses/search", methods=["GET", "POST"])
+def courses_search():
+    """Show course search form.
+    Get the title to search for.
+    Return cards for matching course(s)."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = CourseSearchForm()
+
+    if form.validate_on_submit():
+        phrase = form.phrase.data
+        # if no search phrase was provided by user
+        if not phrase:
+            courses = Course.query.all()
+            flash('No search term found; showing all courses', "info")
+        # if search phrase was provided by user
+        else:
+            courses = Course.query.filter(
+                Course.title.like(f"%{phrase}%")).all()
+            # if no courses were returned from the search
+            if len(courses) == 0:
+                flash(
+                    f'There are no courses with titles similar to {phrase}.', "warning")
+            # if courses match the search
+            else:
+                flash(
+                    f'Showing courses with titles matching phrases similar to {phrase}', "info")
+
+        return render_template('courses/search.html', form=form, courses=courses)
+
+    return render_template('/courses/search.html', form=form)
+
+
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
 
@@ -478,12 +523,19 @@ def courses_edit(course_id):
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
 
-    # include a button ("Add a video") that takes the user to the '/courses/<int:course_id>/videos/<video_id/add' route
-
     # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
     # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     course = Course.query.get_or_404(course_id)
-    # videos_courses = course.videos_courses
+
+    # restrict access to the creator of this course
+    if course.creator_id != g.user.id:
+        flash("You must be the course creator to view this page.", "danger")
+        return redirect("/")
 
     videos_courses_asc = (VideoCourse
                           .query
@@ -494,7 +546,7 @@ def courses_edit(course_id):
     return render_template("courses/edit.html", course=course, videos_courses=videos_courses_asc)
 
 
-@app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
+@ app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
     Resequence the videos within a course.
@@ -535,7 +587,7 @@ def courses_resequence(course_id):
     return redirect(f'../../courses/{course_id}/edit')
 
 
-@app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
+@ app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
     Remove a video from a course.
@@ -582,43 +634,3 @@ def remove_video(course_id):
     # re-render the course edit page without the removed video
 
     return redirect(f'../../courses/{course_id}/edit')
-
-# *********************************
-#
-# COURSE ROUTES HELPER FUNCTIONS
-#
-# *********************************
-
-
-def add_video_to_db(form_data, yt_video_id):
-    """Add a video to the database."""
-
-    # CHANGE: should .first() be .one_or_none instead?
-    video = Video.query.filter(Video.yt_video_id == yt_video_id).first()
-
-    if not video:
-        # CHANGE: is there a more efficient way to do this?
-        # get video info from hidden form fields
-        # CHANGE: pull this out into a helper function
-        title = form_data.get('v-title', None)
-        description = form_data.get('v-description', None)
-        channelId = form_data.get('v-channelId', None)
-        channelTitle = form_data.get('v-channelTitle', None)
-        thumbUrl = form_data.get('v-thumbUrl', None)
-        iframe = form_data.get('v-iframe', None)
-
-        # create new video
-        # CHANGE: pull this out into a helper function
-        video = Video(title=title,
-                      description=description,
-                      yt_video_id=yt_video_id,
-                      yt_channel_id=channelId,
-                      yt_channel_title=channelTitle,
-                      thumbUrl=thumbUrl,
-                      iframe=iframe)
-
-        # add new video to database
-        db.session.add(video)
-        db.session.commit()
-
-    return video
