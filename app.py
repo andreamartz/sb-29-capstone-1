@@ -517,7 +517,7 @@ def courses_search():
 # CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
 
 
-@ app.route('/courses/<int:course_id>/edit', methods=["GET"])
+@app.route('/courses/<int:course_id>/edit', methods=["GET"])
 def courses_edit(course_id):
     """Display the videos in the course.
     Courses may be added, removed, or re-sequenced.
