@@ -546,6 +546,24 @@ def courses_edit(course_id):
     return render_template("courses/edit.html", course=course, videos_courses=videos_courses_asc)
 
 
+@app.route('/courses/<int:course_id>/details', methods=["GET"])
+def courses_details(course_id):
+    """Display the videos in the course."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    course = Course.query.get_or_404(course_id)
+    videos_courses_asc = (VideoCourse
+                          .query
+                          .filter(VideoCourse.course_id == course_id)
+                          .order_by(VideoCourse.video_seq)
+                          .all())
+    user = g.user
+    return render_template("courses/details.html", user=user, course=course, videos_courses=videos_courses_asc)
+
+
 @ app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
