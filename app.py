@@ -106,12 +106,6 @@ def get_yt_videos(keyword):
     # create list of dicts containing info & data re: individual videos
     videos_data = create_list_of_videos(items)
 
-    # CHANGE: for now do not call the YT API to get the embeddable iframes; uncomment this after development mostly done
-    # for every video in a list, call the fcn to add iframe to video
-    # videos_complete = get_iframes(videos_data)
-    # res_json = jsonify(videos_complete)
-
-    # CHANGE: when switching to rendering videos, remove this line
     res_json = jsonify(videos_data)
 
     return res_json
@@ -150,19 +144,6 @@ def create_list_of_videos(items):
         video_data["thumb_url_medium"] = video['snippet']['thumbnails']['high']['url']
 
         videos_data.append(video_data)
-
-    return videos_data
-
-
-# for every video returned, call the fcn to get embed iframe
-def get_iframes(videos_data):
-    """For every video in videos_data, add """
-
-    for video in videos_data:
-        yt_video_id = video["ytVideoId"]
-        videos_json = yt_videos(yt_video_id)
-        iframe = videos_json['items'][0]['player']['embedHtml']
-        video['iframe'] = iframe
 
     return videos_data
 
@@ -331,8 +312,7 @@ def add_video_to_db(form_data, yt_video_id):
         description = form_data.get('v-description', None)
         channelId = form_data.get('v-channelId', None)
         channelTitle = form_data.get('v-channelTitle', None)
-        thumbUrl = form_data.get('v-thumbUrl', None)
-        iframe = form_data.get('v-iframe', None)
+        thumb_url = form_data.get('v-thumb-url', None)
 
         # create new video
         # CHANGE: pull this out into a helper function
@@ -341,8 +321,7 @@ def add_video_to_db(form_data, yt_video_id):
                       yt_video_id=yt_video_id,
                       yt_channel_id=channelId,
                       yt_channel_title=channelTitle,
-                      thumbUrl=thumbUrl,
-                      iframe=iframe)
+                      thumb_url=thumb_url)
 
         # add new video to database
         db.session.add(video)

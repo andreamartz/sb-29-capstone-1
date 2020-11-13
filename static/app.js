@@ -44,13 +44,10 @@ function handleResponse(res) {
       const channelTitle = video['channelTitle'];
       const description = video['description'];
       const thumbUrl = video["thumb_url_medium"];
-      // CHANGE: uncomment this when app.py will start rendering videos, not thumbnails
-      // const iframe = video['iframe'];
 
       const div = document.createElement("div");
       div.setAttribute("data-id", `${ytVideoId}`);
       div.setAttribute("class", "card mb-3");
-      // CHANGE: when ready to display videos instead of thumbnails, first column should show ${iframe} instead of ${thumbUrl}
       div.innerHTML = 
       `<div class="row no-gutters justify-content-center">
         <div class="col-8 col-md-4 image-container">
@@ -66,15 +63,12 @@ function handleResponse(res) {
               <input type="hidden" id="v-description" name="v-description" value="${description}">
               <input type="hidden" id="v-channelId" name="v-channelId" value="${channelId}">
               <input type="hidden" id="v-channelTitle" name="v-channelTitle" value="${channelTitle}">
-              <input type="hidden" id="v-thumbUrl" name="v-thumbUrl" value="${thumbUrl}">
+              <input type="hidden" id="v-thumb_url" name="v-thumb-url" value="${thumbUrl}">
               <button type="submit" class="btn btn-primary">Add to course</button>
             </form>
           </div>
         </div>
       </div>`;
-      // CHANGE: add the following back to the article's innerHTML above when app.py will start rendering videos, not thumbnails
-      // <input type="hidden" id="v-iframe" name="v-iframe" value="${iframe}">
-
       searchResults.append(
         div
       );

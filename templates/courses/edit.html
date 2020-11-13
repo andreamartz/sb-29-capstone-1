@@ -46,7 +46,7 @@
               <input type="hidden" name="vc-id" value={{vc.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="arrow" value="-1">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-up"></i></button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-up"></i></button>
             </form>
             {% endif %}
             <!-- form for down arrow (sequence plus 1) -->
@@ -56,7 +56,7 @@
               <input type="hidden" name="vc-id" value={{vc.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="arrow" value="1">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-down"></i></button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-down"></i></button>
             </form>
             {% endif %}
           </div>
@@ -66,7 +66,7 @@
               <input type="hidden" name="course-id" value={{course.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="video-id" value={{vc.video.id}}>
-              <button type="submit" class="btn btn-primary">Remove</button>
+              <button type="submit" class="btn btn-primary btn-danger">Remove</button>
             </form>
           </div>
         </div>
