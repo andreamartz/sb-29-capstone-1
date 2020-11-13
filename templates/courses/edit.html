@@ -1,25 +1,19 @@
 <!-- LOGGED IN USERS ONLY
-  * This page will allow the course creator to edit the course (add/remove videos, reorder videos, change course title)
-  * Make sure that when course title is modified that it is not the same as any other course by this creator.
-  * After a course edits have been made, redirect to course details page.-->
+  * This page will allow the course creator to edit the course (add/remove videos or reorder videos).
 
-<!-- LOGGED IN USERS ONLY:
-This page will show:
-* for ALL USERS: the details for each course, such as title, creator username, and videos (in order)
-* for COURSE CREATOR: a delete button to remove the course, a delete button next to each video, a way to re-order courses
-
-This view should be passed the course id-->
+  * After course edits have been made, redirect to course details page.-->
 
 {% extends 'base.html' %}
 {% block content %}
 <div class="row justify-content-center">
   <div class="col">
     <h1>Modify a course</h1>
-    <p>Add, remove, or reorder videos in the course:
+    <p class="h4 my-3">Add, remove, or reorder videos in the course:
       <i>{{ course.title }}</i>
     </p>
-    <p><a href="./videos/search">Search for videos</a> to add to the course.</p>
-    <p>Remove or reorder the videos using the arrow buttons.</p>
+    <p class="h4 my-3"><a href="/courses/{{ course.id }}/details">View the videos</a> in this course.</p>
+    <p class="h4 my-3"><a href="./videos/search">Search for videos</a> to add to the course.</p>
+    <p class="h4 my-3">Remove or reorder the videos using the buttons on each video.</p>
   </div>
 </div>
 {% if videos_courses %}
@@ -29,14 +23,17 @@ This view should be passed the course id-->
     <div class="col-8 col-md-4 image-container">
       <!-- Course Image -->
       <!-- CHANGE: remove this line when replacing thumbnail with iframe -->
-      <img src="{{ vc.video.thumbUrl }}" class="img-fluid searched-item" alt="thumbnail of video: {{ vc.video.title }}">
+      <a href="https://www.youtube.com/watch?v={{ vc.video.yt_video_id }}" target="_blank" rel="noreferrer noopener">
+        <img src="{{ vc.video.thumb_url }}" class="img-fluid searched-item"
+          alt="thumbnail of video: {{ vc.video.title }}">
+      </a>
       <!-- CHANGE: uncomment and turn into a variable to show iframe -->
       <!-- video.iframe -->
     </div>
     <div class="col-8 col-md-8">
       <div class="card-body card-body-style">
         <!-- Course title & description -->
-        <h5 class="card-title">{{ vc.video.title}}</h5>
+        <p class="card-title h5">{{ vc.video.title}}</p>
         <p class="card-text">{{ vc.video.description }}</p>
       </div>
       <div class="card-footer card-footer-style">
