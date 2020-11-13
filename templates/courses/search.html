@@ -10,9 +10,11 @@ This page will show:
 
 {% extends 'base.html' %}
 {% block content %}
-<div class="row justify-content-center mt-3 mb-5">
-  <div class="col">
-    <h1 class="display-1">Courses Search</h1>
+<div class="row justify-content-center mb-4">
+  <h1>Courses Search</h1>
+</div>
+<div class="row justify-content-md-center">
+  <div class="col-md-8">
     <form method="POST">
       <div class="form-group">
         {{ form.hidden_tag() }}
@@ -32,6 +34,7 @@ This page will show:
     </form>
   </div>
 </div>
+
 <!-- Courses will be rendered by Flask server. -->
 {% for course in courses %}
 <a href="/courses/{{ course.id }}/details">
@@ -41,8 +44,8 @@ This page will show:
         <!-- Course Image -->
         {% if (course.videos | length) == 0 %}
         <img src="../static/images/question-1015308_640.jpg" class="course-img" alt="">
-        {% elif course.videos[0].thumbUrl %}
-        <img src="{{course.videos[0].thumbUrl}}" class="course-img" alt="">
+        {% elif course.videos[0].thumb_url %}
+        <img src="{{course.videos[0].thumb_url}}" class="course-img" alt="">
         {% else %}
         <img src="../static/images/question-1015308_640.jpg" class="course-img" alt="">
         {% endif %}
@@ -63,7 +66,7 @@ This page will show:
                 href="https://pixabay.com/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Pixabay)
               </a>
             </small class="text-muted">
-            {% elif not course.videos[0].thumbUrl %}
+            {% elif not course.videos[0].thumb_url %}
             <small>(Image by
               <a
                 href="https://pixabay.com/users/peggy_marco-1553824/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=1015308">Peggy
