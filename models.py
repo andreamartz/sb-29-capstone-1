@@ -150,6 +150,7 @@ class Video(db.Model):
         db.Text,
     )
 
+    # yt_video_id comes from YouTube Data API
     yt_video_id = db.Column(
         db.Text,
         nullable=False,
