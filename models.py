@@ -48,9 +48,9 @@ class User(db.Model):
         default="/static/images/default-pic.png",
     )
 
-    # def __repr__(self):
-    #     """Create a readable, identifiable representation of user."""
-    #     return f"<User #{self.id}: {self.username}, {self.email}>"
+    def __repr__(self):
+        """Create a readable, identifiable representation of user."""
+        return f"<User #{self.id}: {self.username}, {self.email}>"
 
     @classmethod
     def signup(cls, email, username, password, first_name, last_name, image_url):
@@ -126,9 +126,9 @@ class Course(db.Model):
 
     videos_courses = db.relationship("VideoCourse", backref="course")
 
-    # def __repr__(self):
-    #     """Create a readable, identifiable representation of course."""
-    #     return f"<Course #{self.id}: {self.course.title}, {self.creator_id}email}>"
+    def __repr__(self):
+        """Create a readable, identifiable representation of course."""
+        return f"<Course #{self.id}: {self.title}, {self.creator_id}>"
 
 
 class Video(db.Model):
