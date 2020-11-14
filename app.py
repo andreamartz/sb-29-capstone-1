@@ -221,7 +221,7 @@ def homepage():
 # 2. create route to view user's created courses
 
 
-@ app.route('/signup', methods=["GET", "POST"])
+@app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
@@ -261,7 +261,7 @@ def signup():
         return render_template('users/signup.html', form=form)
 
 
-@ app.route('/login', methods=["GET", "POST"])
+@app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
 
@@ -281,7 +281,7 @@ def login():
     return render_template('users/login.html', form=form)
 
 
-@ app.route('/logout')
+@app.route('/logout')
 def logout():
     """Handle logout of user."""
 
@@ -335,7 +335,7 @@ def add_video_to_db(form_data, yt_video_id):
 # *******************************
 
 
-@ app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
+@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
 
@@ -359,7 +359,7 @@ def search_videos_form(course_id):
     return render_template('/videos/search.html', course=course)
 
 
-@ app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
+@app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
 def add_video_to_course(course_id, yt_video_id):
     """This route does not have a view.
     Check to see if the video is in the database already.
@@ -411,7 +411,7 @@ def add_video_to_course(course_id, yt_video_id):
 # 1. get likeCount and viewCount for each video from YT
 
 
-@ app.route("/courses/new", methods=["GET", "POST"])
+@app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
     """Create a new course:
 
@@ -457,7 +457,7 @@ def courses_add():
     return render_template("courses/new.html", form=form)
 
 
-@ app.route("/courses/search", methods=["GET", "POST"])
+@app.route("/courses/search", methods=["GET", "POST"])
 def courses_search():
     """Show course search form.
     Get the title to search for.
