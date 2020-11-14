@@ -530,6 +530,7 @@ def courses_details(course_id):
     user = g.user
     return render_template("courses/details.html", user=user, course=course, videos_courses=videos_courses_asc)
 
+# CHANGE QUESTION: The video resequence route seems like it should be a PATCH route, but when I change POST to PATCH, I get a 405 Method Not Allowed status code.  Why?
 @app.route('/courses/<int:course_id>/videos/resequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
@@ -570,6 +571,7 @@ def courses_resequence(course_id):
 
     return redirect(f'../../../courses/{course_id}/edit')
 
+# CHANGE QUESTION: The video removal route seems like it should be a DELETE route, but when I change POST to DELETE, I get a 405 Method Not Allowed status code.  Why?
 @app.route('/courses/<int:course_id>/videos/remove', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
