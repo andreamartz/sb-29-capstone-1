@@ -8,7 +8,7 @@ import requests
 
 from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 
-from models import db, connect_db, User, Course, Video, Subscription, VideoCourse
+from models import db, connect_db, User, Course, Video, VideoCourse
 
 from secrets import API_SECRET_KEY
 
