@@ -606,7 +606,7 @@ def remove_video(course_id):
         ).delete()
         db.session.commit()
 
-    # resequence the remaining videos in the course - necessary? YES! to make re-sequencing arrows work properly
+    # resequence the remaining videos in the course
     vc_reorder = VideoCourse.query.filter(
         VideoCourse.course_id == course.id,
         VideoCourse.video_seq > video_seq
@@ -616,5 +616,4 @@ def remove_video(course_id):
         vc.video_seq = vc.video_seq - 1
 
     # re-render the course edit page without the removed video
-
     return redirect(f'../../../courses/{course_id}/edit')
