@@ -29,7 +29,7 @@ db.create_all()
 
 
 class CourseModelTestCase(TestCase):
-    """Test Video Model"""
+    """Test Course Model"""
 
     # runs before each test
     def setUp(self):
