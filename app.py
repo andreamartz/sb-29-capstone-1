@@ -68,7 +68,6 @@ def do_logout():
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
-# 2.
 
 
 def get_form_data():
@@ -221,7 +220,7 @@ def homepage():
 # 2. create route to view user's created courses
 
 
-@ app.route('/signup', methods=["GET", "POST"])
+@app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
@@ -233,8 +232,7 @@ def signup():
     If there already is a user with that username or email: flash message and re-present form.
     """
 
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
+    do_logout()
     form = UserAddForm()
 
     if form.validate_on_submit():
@@ -261,7 +259,7 @@ def signup():
         return render_template('users/signup.html', form=form)
 
 
-@ app.route('/login', methods=["GET", "POST"])
+@app.route('/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
 
@@ -281,7 +279,7 @@ def login():
     return render_template('users/login.html', form=form)
 
 
-@ app.route('/logout')
+@app.route('/logout')
 def logout():
     """Handle logout of user."""
 
@@ -335,7 +333,7 @@ def add_video_to_db(form_data, yt_video_id):
 # *******************************
 
 
-@ app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
+@app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
     """Display keyword search form and search results."""
 
@@ -359,7 +357,7 @@ def search_videos_form(course_id):
     return render_template('/videos/search.html', course=course)
 
 
-@ app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
+@app.route("/courses/<int:course_id>/videos/<yt_video_id>/add", methods=["POST"])
 def add_video_to_course(course_id, yt_video_id):
     """This route does not have a view.
     Check to see if the video is in the database already.
@@ -411,7 +409,7 @@ def add_video_to_course(course_id, yt_video_id):
 # 1. get likeCount and viewCount for each video from YT
 
 
-@ app.route("/courses/new", methods=["GET", "POST"])
+@app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
     """Create a new course:
 
@@ -421,11 +419,6 @@ def courses_add():
         * course does exist already for this creator:
         flash a message notifying the user of this
     If POST and form does not validate, re-present form."""
-
-    # In this route:
-    # try: <code to add new course>
-    # except: flash a message and redirect
-    # after course is created, allow user to search for videos
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -457,7 +450,7 @@ def courses_add():
     return render_template("courses/new.html", form=form)
 
 
-@ app.route("/courses/search", methods=["GET", "POST"])
+@app.route("/courses/search", methods=["GET", "POST"])
 def courses_search():
     """Show course search form.
     Get the title to search for.
@@ -493,17 +486,11 @@ def courses_search():
     return render_template('/courses/search.html', form=form)
 
 
-# CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
-
-
 @app.route('/courses/<int:course_id>/edit', methods=["GET"])
 def courses_edit(course_id):
     """Display the videos in the course.
-    Courses may be added, removed, or re-sequenced.
+    Courses may be added, removed, or resequenced.
     Edit an existing course."""
-
-    # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
-    # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -542,8 +529,8 @@ def courses_details(course_id):
     user = g.user
     return render_template("courses/details.html", user=user, course=course, videos_courses=videos_courses_asc)
 
-
-@ app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
+# CHANGE QUESTION: The video resequence route seems like it should be a PATCH route, but when I change POST to PATCH, I get a 405 Method Not Allowed status code.  Why?
+@app.route('/courses/<int:course_id>/videos/resequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
     Resequence the videos within a course.
@@ -581,10 +568,10 @@ def courses_resequence(course_id):
 
     # re-render the course edit page
 
-    return redirect(f'../../courses/{course_id}/edit')
+    return redirect(f'../../../courses/{course_id}/edit')
 
-
-@ app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
+# CHANGE QUESTION: The video removal route seems like it should be a DELETE route, but when I change POST to DELETE, I get a 405 Method Not Allowed status code.  Why?
+@app.route('/courses/<int:course_id>/videos/remove', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
     Remove a video from a course.
@@ -630,4 +617,4 @@ def remove_video(course_id):
 
     # re-render the course edit page without the removed video
 
-    return redirect(f'../../courses/{course_id}/edit')
+    return redirect(f'../../../courses/{course_id}/edit')

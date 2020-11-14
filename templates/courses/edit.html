@@ -41,32 +41,32 @@
           <div class="col-6 col-sm-6 col-md-4 col-lg-3">
             <!-- form for up arrow (sequence minus 1) -->
             {% if vc.video_seq != 1 %}
-            <form action="/courses/{{ course.id }}/re-sequence" class="d-inline" method="POST">
+            <form action="/courses/{{ course.id }}/videos/resequence" class="d-inline" method="POST">
               <input type="hidden" name="course-id" value={{course.id}}>
               <input type="hidden" name="vc-id" value={{vc.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="arrow" value="-1">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-up"></i></button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-up"></i></button>
             </form>
             {% endif %}
             <!-- form for down arrow (sequence plus 1) -->
             {% if vc.video_seq != (videos_courses | length) %}
-            <form action="/courses/{{ course.id }}/re-sequence" class="d-inline ml-2" method="POST">
+            <form action="/courses/{{ course.id }}/videos/resequence" class="d-inline ml-2" method="POST">
               <input type="hidden" name="course-id" value={{course.id}}>
               <input type="hidden" name="vc-id" value={{vc.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="arrow" value="1">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-sort-down"></i></button>
+              <button type="submit" class="btn btn-primary"><i class="fas fa-arrow-down"></i></button>
             </form>
             {% endif %}
           </div>
           <div class="col-6 col-sm-4 col-lg-3">
             <!-- CHANGE: is curr-video-seq still needed? -->
-            <form action="/courses/{{ course.id }}/remove-video" class="d-inline" method="POST">
+            <form action="/courses/{{ course.id }}/videos/remove" class="d-inline" method="POST">
               <input type="hidden" name="course-id" value={{course.id}}>
               <input type="hidden" name="video-seq" value={{vc.video_seq}}>
               <input type="hidden" name="video-id" value={{vc.video.id}}>
-              <button type="submit" class="btn btn-primary">Remove</button>
+              <button type="submit" class="btn btn-primary btn-danger">Remove</button>
             </form>
           </div>
         </div>
