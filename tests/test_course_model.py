@@ -19,7 +19,7 @@ from models import db, User, Course, Video, VideoCourse
 os.environ['DATABASE_URL'] = "postgresql:///access-academy-test"
 
 # Now we can import app
-
+from app import app
 
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
@@ -33,17 +33,16 @@ class CourseModelTestCase(TestCase):
 
     # runs before each test
     def setUp(self):
-        """Create test client, add sample data."""
+        """Add sample data.
+        Create test client."""
 
         db.drop_all()
         db.create_all()
 
-        user1 = User.signup("allison", "allison@allison.com",
-                            "allison", "http://lorempixel.com/400/400/people/1")
+        user1 = User.signup("allison@allison.com", "allison", "allison", "Allison", "McAllison", None)
         user1.id = 1111
 
-        user2 = User.signup(
-            "jackson", "jackson@jackson.com", "jackson", None)
+        user2 = User.signup("jackson@jackson.com", "jackson", "jackson", "Jackson", "McJackson", None)
         user2.id = 2222
 
         db.session.commit()
@@ -63,25 +62,17 @@ class CourseModelTestCase(TestCase):
     
 
     def test_course_model(self):
-        """"""
+        """Does course model work?"""
 
         # create a course.
-        ## course should exist
-        # add video to course
-        ## course should have one video
-        # add a second video to the course
-        ## course should have two videos
-        # add a third video to the course
-        ## course should have three videos
+        c = Course(title = "This course title is a test", description = "This course description is a test",creator_id = self.user1.id)
+        db.session.add(c)
+        db.session.commit()
+
+        # course should exist
+        self.assertTrue(c)
+        # course title should be: 'This course title is a test'
+        self.assertEqual(self.user1.courses[0].title, "This course title is a test")
+        # user1 should have one course
+        self.assertEqual(len(self.user1.courses), 1)
         
-        # edit a course
-        ## move the third 
-
-
-        # create a video
-        # create a course
-        ## edit a course
-
-
-
-
