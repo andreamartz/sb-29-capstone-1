@@ -1,14 +1,10 @@
 """SQLAlchemy models for Access Academy"""
-# CHANGE project name above
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
-
-# CHANGE: TO DO: add cascading deletes
-
 
 class User(db.Model):
     """User of this app"""
@@ -52,9 +48,9 @@ class User(db.Model):
         default="/static/images/default-pic.png",
     )
 
-    # def __repr__(self):
-    #     """Create a readable, identifiable representation of user."""
-    #     return f"<User #{self.id}: {self.username}, {self.email}>"
+    def __repr__(self):
+        """Create a readable, identifiable representation of user."""
+        return f"<User #{self.id}: {self.username}, {self.email}>"
 
     @classmethod
     def signup(cls, email, username, password, first_name, last_name, image_url):
@@ -106,12 +102,6 @@ class Course(db.Model):
         primary_key=True,
     )
 
-    # popularity = db.Column(
-    #     db.Integer,
-    #     nullable=False,
-    #     default=0,
-    # )
-
     title = db.Column(
         db.Text,
         nullable=False,
@@ -131,18 +121,14 @@ class Course(db.Model):
 
     creator = db.relationship('User', backref='courses')
 
-    # CHANGE: this relationship is problematic because of the creator relationship which is also with the User model.
-    # subscribers = db.relationship(
-    #     'User', secondary='subscriptions', backref='courses')
-
     videos = db.relationship(
         'Video', secondary='videos_courses', backref='courses')
 
     videos_courses = db.relationship("VideoCourse", backref="course")
 
-    # def __repr__(self):
-    #     """Create a readable, identifiable representation of course."""
-    #     return f"<Course #{self.id}: {self.course.title}, {self.creator_id}email}>"
+    def __repr__(self):
+        """Create a readable, identifiable representation of course."""
+        return f"<Course #{self.id}: {self.title}, {self.creator_id}>"
 
 
 class Video(db.Model):
@@ -150,7 +136,6 @@ class Video(db.Model):
 
     __tablename__ = 'videos'
 
-    # id comes from YouTube Data API
     id = db.Column(
         db.Integer,
         primary_key=True,
@@ -165,6 +150,7 @@ class Video(db.Model):
         db.Text,
     )
 
+    # yt_video_id comes from YouTube Data API
     yt_video_id = db.Column(
         db.Text,
         nullable=False,
@@ -183,49 +169,7 @@ class Video(db.Model):
         db.Text,
     )
 
-# CHANGE: remove iframe,  viewCount, likecount, pctlike
-    # iframe = db.Column(
-    #     db.Text,
-    # )
-
-    # viewCount = db.Column(
-    #     db.Integer,
-    # )
-
-    # likeCount = db.Column(
-    #     db.Integer,
-    # )
-
-    # pctlike = db.Column(
-    #     db.Integer,
-    # )
-
     videos_courses = db.relationship('VideoCourse', backref='video')
-
-
-class Subscription(db.Model):
-    """Join table for users and courses"""
-
-    __tablename__ = 'subscriptions'
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-    )
-
-    subscriber_id = db.Column(
-        db.Integer,
-        db.ForeignKey('users.id', ondelete="cascade"),
-        primary_key=True,
-    )
-
-    course_id = db.Column(
-        db.Integer,
-        db.ForeignKey('courses.id', ondelete="cascade"),
-        primary_key=True,
-    )
-
-    db.UniqueConstraint(subscriber_id, course_id)
 
 
 class VideoCourse(db.Model):
