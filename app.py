@@ -542,8 +542,7 @@ def courses_details(course_id):
     user = g.user
     return render_template("courses/details.html", user=user, course=course, videos_courses=videos_courses_asc)
 
-
-@ app.route('/courses/<int:course_id>/re-sequence', methods=["POST"])
+@app.route('/courses/<int:course_id>/videos/resequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
     Resequence the videos within a course.
@@ -581,10 +580,9 @@ def courses_resequence(course_id):
 
     # re-render the course edit page
 
-    return redirect(f'../../courses/{course_id}/edit')
+    return redirect(f'../../../courses/{course_id}/edit')
 
-
-@ app.route('/courses/<int:course_id>/remove-video', methods=["POST"])
+@app.route('/courses/<int:course_id>/videos/remove', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
     Remove a video from a course.
@@ -630,4 +628,4 @@ def remove_video(course_id):
 
     # re-render the course edit page without the removed video
 
-    return redirect(f'../../courses/{course_id}/edit')
+    return redirect(f'../../../courses/{course_id}/edit')
