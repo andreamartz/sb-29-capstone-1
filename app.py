@@ -232,8 +232,7 @@ def signup():
     If there already is a user with that username or email: flash message and re-present form.
     """
 
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
+    do_logout()
     form = UserAddForm()
 
     if form.validate_on_submit():
