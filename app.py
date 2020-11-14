@@ -68,7 +68,6 @@ def do_logout():
 
 # TO DO:
 # 1. get likeCount and viewCount for each video from YT
-# 2.
 
 
 def get_form_data():
@@ -422,11 +421,6 @@ def courses_add():
         flash a message notifying the user of this
     If POST and form does not validate, re-present form."""
 
-    # In this route:
-    # try: <code to add new course>
-    # except: flash a message and redirect
-    # after course is created, allow user to search for videos
-
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -493,17 +487,11 @@ def courses_search():
     return render_template('/courses/search.html', form=form)
 
 
-# CHANGE: is this the best route name (/courses/<int:course_id>/edit')? should 'edit' come before the course_id? why?
-
-
 @app.route('/courses/<int:course_id>/edit', methods=["GET"])
 def courses_edit(course_id):
     """Display the videos in the course.
     Courses may be added, removed, or re-sequenced.
     Edit an existing course."""
-
-    # CHANGE: QUESTION: is using a join table like this a proper way/ a good way to get the ordered videos
-    # CHANGE: QUESTION: should I pull the videos themselves or just a list of the sequence numbers?
 
     if not g.user:
         flash("Access unauthorized.", "danger")
