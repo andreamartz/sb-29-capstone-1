@@ -490,7 +490,7 @@ def courses_search():
 @app.route('/courses/<int:course_id>/edit', methods=["GET"])
 def courses_edit(course_id):
     """Display the videos in the course.
-    Courses may be added, removed, or re-sequenced.
+    Courses may be added, removed, or resequenced.
     Edit an existing course."""
 
     if not g.user:
