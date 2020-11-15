@@ -10,7 +10,7 @@ from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 
 from models import db, connect_db, User, Course, Video, VideoCourse
 
-from secrets import API_SECRET_KEY
+# from secrets import API_SECRET_KEY
 # API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
