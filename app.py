@@ -11,6 +11,7 @@ from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 from models import db, connect_db, User, Course, Video, VideoCourse
 
 from secrets import API_SECRET_KEY
+# API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
 API_BASE_URL = "https://www.googleapis.com/youtube/v3"
@@ -414,8 +415,8 @@ def courses_add():
 
     If GET: Show the course add form.
     If POST and form validates:
-        * course title does not exist yet for this creator: add course and redirect to videos search page
-        * course does exist already for this creator:
+        * if course title does not exist yet for this creator: add course and redirect to videos search page
+        * if course does exist already for this creator:
         flash a message notifying the user of this
     If POST and form does not validate, re-present form."""
 

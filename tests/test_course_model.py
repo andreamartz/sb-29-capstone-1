@@ -2,12 +2,13 @@
 
 # run these tests like:
 #
-#    python -m unittest test_video_model.py
+#    python -m unittest test_course_model.py
 
 
 from app import app
 import os
 from unittest import TestCase
+from sqlalchemy import exc
 
 from models import db, User, Course, Video, VideoCourse
 
@@ -61,18 +62,24 @@ class CourseModelTestCase(TestCase):
         db.session.rollback()
     
 
-    def test_course_model(self):
+    def test_course_model_functionality(self):
         """Does course model work?"""
 
-        # create a course.
-        c = Course(title = "This course title is a test", description = "This course description is a test",creator_id = self.user1.id)
-        db.session.add(c)
+        # create a course
+        c1 = Course(title = "This course title is a test", description = "This course description is a test", creator_id = self.user1.id)
+        db.session.add(c1)
         db.session.commit()
 
         # course should exist
-        self.assertTrue(c)
+        self.assertTrue(c1)
         # course title should be: 'This course title is a test'
         self.assertEqual(self.user1.courses[0].title, "This course title is a test")
-        # user1 should have one course
+        # user1 should have exactly one course
         self.assertEqual(len(self.user1.courses), 1)
+
+        # user cannot create another course with the same title
+        c2 = Course(title="This course title is a test", creator_id=self.user1.id)
+        db.session.add(c2)
+        with self.assertRaises(exc.IntegrityError) as context: 
+            db.session.commit()
         
