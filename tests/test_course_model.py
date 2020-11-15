@@ -61,7 +61,7 @@ class CourseModelTestCase(TestCase):
         db.session.rollback()
     
 
-    def test_course_model(self):
+    def test_course_model_functionality(self):
         """Does course model work?"""
 
         # create a course.
