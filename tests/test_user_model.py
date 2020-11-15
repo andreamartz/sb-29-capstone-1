@@ -146,13 +146,10 @@ class UserModelTestCase(TestCase):
         with self.assertRaises(exc.IntegrityError) as context:
             db.session.commit()
 
-    # def test_signup_missing_password(self):
-    #     """Sign up should fail when password is missing."""
-
-    #     invalid_u = User.signup("test@test.com", "testuser", None, "Test", "User", None)
-
-    #     with self.assertRaises(ValueError) as context:
-    #         db.session.commit()
+    def test_signup_missing_password(self):
+        """Sign up should fail when password is missing."""
+        with self.assertRaises(ValueError) as context:
+            invalid_u = User.signup("test@test.com", "testuser", None, "Test", "User", None)
 
     def test_signup_missing_first_name(self):
         """Sign up should fail when first name is missing."""

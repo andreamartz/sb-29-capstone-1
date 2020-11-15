@@ -38,12 +38,10 @@ class VideoModelTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
-        user1 = User.signup("allison", "allison@allison.com",
-                            "allison", "http://lorempixel.com/400/400/people/1")
+        user1 = User.signup("allison@allison.com", "allison", "allison", "Allison", "McAllison", None)
         user1.id = 1111
 
-        user2 = User.signup(
-            "jackson", "jackson@jackson.com", "jackson", None)
+        user2 = User.signup("jackson@jackson.com", "jackson", "jackson", "Jackson", "McJackson", None)
         user2.id = 2222
 
         db.session.commit()
@@ -62,17 +60,21 @@ class VideoModelTestCase(TestCase):
         db.session.rollback()
     
 
-    def test_video_model(self):
-        """"""
+    def test_video_model_functionality(self):
+        """The basic video model should work."""
 
+        # create a video
+        v = Video(title="Title of a YouTube Video", description="Description of a YouTube Video", yt_video_id="yfoY53QXEnI", yt_channel_id="UC29ju8bIPH5as8OGnQzwJyA")
+        db.session.add(v)
+        db.session.commit()
 
+        # video should exist
+        self.assertTrue(v)
 
-# create a video.
-## video should exist
-### self.assertTrue(video)
+        # video title should be correct in db
+        v=Video.query.get(1)
+        self.assertEqual(v.title, "Title of a YouTube Video")
 
-
-
-
-
-
+        # there should be exactly one video in the db
+        v=Video.query.all()
+        self.assertEqual(len(v), 1)
