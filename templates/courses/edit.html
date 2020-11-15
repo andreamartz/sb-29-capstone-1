@@ -7,7 +7,7 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col">
-    <h1>Modify a course</h1>
+    <h1 class="mt-4 mb-5">Modify a course</h1>
     <p class="h4 my-3">Add, remove, or reorder videos in the course:
       <i>{{ course.title }}</i>
     </p>
@@ -76,9 +76,9 @@
 </div>
 {% endfor %}
 {% else %}
-<h3>This course currently has no videos in it.</h3>
-<form action="">
-  <button type="submit">Search videos</button>
+<h3 class="text-warning mt-4 mb-5">The course <em>{{course.title}}</em> currently has no videos in it.</h3>
+<form action="/courses/{{course.id}}/videos/search">
+  <button type="submit" class="btn btn-primary btn-lg">Search videos</button>
 </form>
 {% endif %}
 {% endblock %}
