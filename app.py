@@ -34,10 +34,6 @@ toolbar = DebugToolbarExtension(app)
 connect_db(app)
 
 
-# CHANGE: take this line out after authentication is added in:
-# session[CURR_USER_KEY] = 1
-
-
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -366,7 +362,8 @@ def add_video_to_course(course_id, yt_video_id):
     If not, add the video to database.
     Check to see if the video is part of the course already.
     If not, add the video to the course.
-    Add video sequence number within the course."""
+    Add video sequence number (within the course) to the database.
+    Redirect back to video search page."""
 
     course = Course.query.get_or_404(course_id)
 
@@ -381,7 +378,6 @@ def add_video_to_course(course_id, yt_video_id):
     # Query the db for this course
     course = Course.query.get_or_404(course_id)
 
-    # CHANGE: currently, if video is already part of course, redirect back to search page. this should be changed so that the "Add to course" button is deactivated (or the video isn't even displayed on the search page) if the video is already part of the course, so that the user never gets here.
     # is the video already part of the course?
     if video in course.videos:
         flash("This video has already been added to the course.", "warning")
