@@ -13,6 +13,7 @@ from models import db, connect_db, User, Course, Video, VideoCourse
 # comment this line out when deploying to Heroku
 # from secrets import API_SECRET_KEY
 
+# comment this line out when working with local app
 API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
@@ -26,6 +27,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
+# redirects must be intercepted for some tests to pass
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "another543256432secret")
 
@@ -164,7 +166,13 @@ def yt_videos(yt_video_id):
 @app.route("/api/get-videos", methods=["GET", "POST"])
 def search_videos():
     """API endpoint.
+    This route has no view.
     Get videos from YouTube based on topic entered in search field."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
 
     # get search form data
     data = get_form_data()
@@ -348,10 +356,6 @@ def search_videos_form(course_id):
         flash("You must be the course creator to view this page.", "danger")
         return redirect("/")
 
-    # CHANGE: Right now, the videos searched disappear after a video is added to the course...
-    # CHANGE: ...When the user comes back to the search page, they have to start the search again.
-    # CHANGE: ...Is it easy to fix this or is this a V.2 feature?
-
     return render_template('/videos/search.html', course=course)
 
 
@@ -366,6 +370,10 @@ def add_video_to_course(course_id, yt_video_id):
     Redirect back to video search page."""
 
     course = Course.query.get_or_404(course_id)
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     if course.creator_id != g.user.id:
         flash("Access unauthorized", "danger")
@@ -534,8 +542,16 @@ def courses_resequence(course_id):
     Resequence the videos within a course.
     """
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
     # Query to get the course
     course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user.id:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
 
     # get the video data from the form
     video_id = request.form.get('video-id')
@@ -576,10 +592,17 @@ def remove_video(course_id):
     If the video is only part of one course, also remove video from db.
     """
 
-    # CHANGE: add to docstring if will also be re-sequencing the videos within the course
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     # Query to get the course
     course = Course.query.get_or_404(course_id)
+
+    if course.creator_id != g.user.id:
+        flash("Access unauthorized", "danger")
+        return redirect("/")
+
     # get the video_id from the form
     # CHANGE: should this be instead request.form.get('video-id', None)?
     # potential advantage is to avoid an error?
