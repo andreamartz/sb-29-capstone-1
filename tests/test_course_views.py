@@ -51,23 +51,52 @@ class CourseViewsTestCase(TestCase):
 
         db.session.commit()
 
+        self.user1 = user1
+        self.user2 = user2
+
         # Create a course
         course1 = Course(title="Jackson's Course Title", description="Jackson's Course Description", creator_id="2222")
         db.session.add(course1)
         db.session.commit()
+        self.c = course1
 
-        self.user1 = user1
-        self.user2 = user2
+        # Add three videos to the course
+        video1 = Video(title="Video1", description="Desc for Video1", yt_video_id="yfoY53QXEnI", yt_channel_id="video1video1", yt_channel_title="Video1 Channel", thumb_url="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg")
+
+        video2 = Video(title="Video2", description="Desc for Video2", yt_video_id="1PnVor36_40", yt_channel_id="video2video2", yt_channel_title="Video2 Channel", thumb_url="https://i.ytimg.com/vi/1PnVor36_40/hqdefault.jpg")
+
+        video3 = Video(title="Video3", description="Desc for Video3", yt_video_id="qKoajPPWpmo", yt_channel_id="video3video3", yt_channel_title="Video3 Channel", thumb_url="https://i.ytimg.com/vi/qKoajPPWpmo/hqdefault.jpg")
+        db.session.add(video1)
+        db.session.add(video2)
+        db.session.add(video3)
+        db.session.commit()
+
+        self.v1 = video1
+        self.v2 = video2
+        self.v3 = video3
+
+        vc1 = VideoCourse(course_id=self.c.id, video_id=video1.id, video_seq=1)
+        vc2 = VideoCourse(course_id=self.c.id, video_id=video2.id, video_seq=2)
+        vc3 = VideoCourse(course_id=self.c.id, video_id=video3.id, video_seq=3) 
+
+        db.session.add(vc1)
+        db.session.add(vc2)
+        db.session.add(vc3)
+        db.session.commit()      
+
+        self.vc1 = vc1
+        self.vc2 = vc2
+        self.vc3 = vc3
 
         # set the testing client server
         self.client = app.test_client()
 
-
-    # runs after each test
     def tearDown(self):
         """Remove sample data."""
-
+        res = super().tearDown()
         db.session.rollback()
+        return res
+
 
     # **********************
     # Test course add route
@@ -189,11 +218,22 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2.id
 
-        # res = c.post("/courses/new", 
-        #             data={"title": "New Course Title", "description": "New Course Description"}, follow_redirects=True)
-
         res = c.get("/courses/1/edit")
         self.assertIn("Modify a course", str(res.data))
+        self.assertIn("Desc for Video1", str(res.data))
+        self.assertIn("fa-arrow-down", str(res.data))
+        self.assertIn("fa-arrow-up", str(res.data))
+        self.assertIn("Remove</button>", str(res.data))
+
+    def test_course_edit_404(self):
+        """A logged in user who tries to access the edit page for a course number that does not exist will see custom 404 error page."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user2.id
+
+        res = c.get("/courses/999/edit")
+        self.assertIn("Sorry, this is not the page you\\\'re looking for.", str(res.data))
 
     def test_course_edit_not_creator_fail(self):
         """A logged in user who is NOT the course creator should NOT be able to access the course edit page."""
@@ -223,33 +263,82 @@ class CourseViewsTestCase(TestCase):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2.id
-            
-        res = c.post("/courses/new", 
-            data={"title": "New Course Title", "description": "New Course Description"}, follow_redirects=True)
+        
+        data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
+        res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
+        self.assertNotIn("Desc for Video1", str(res.data))
 
 
-    # def test_course_remove_video_not_creator_fail(self):
+    def test_course_remove_video_not_creator_fail(self):
+        """A logged in user should not be able to remove a video from a course he/she did not create."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user1.id
+
+        data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
+        res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
+        self.assertIn("Access unauthorized", str(res.data))
     
     # def test_course_remove_video_anon_fail(self):
 
-    # def test_course_move_video_up(self):
+    def test_course_move_video_up(self):
+        """A logged in user should be able to reorder the videos in a course he/she created."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user2.id
+
+            data={"course-id": "1", "vc-id": "2", "video-seq": "2", "arrow": "-1"}
+            res = c.post(f"courses/{self.c.id}/videos/resequence", data=data, follow_redirects=True)
+
+            self.assertEqual(self.vc2.video_seq, 1)
+            self.assertEqual(self.vc1.video_seq, 2)
 
     # def test_course_move_video_up_not_creator_fail(self):
+    #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
 
-    # def test_course_move_video_up_anon_fail(self):
+    def test_course_move_video_up_anon_fail(self):
+        """An anonymous user should not be able to reorder the videos in any course."""
+
+        with self.client as c:
+            data={"course-id": "1", "vc-id": "2", "video-seq": "2", "arrow": "-1"}
+            res = c.post(f"courses/{self.c.id}/videos/resequence", data=data, follow_redirects=True)
+
+            self.assertIn("Access unauthorized", str(res.data))
 
     # def test_course_edit_move_video_down(self):
+    #     """A logged in user should be able to reorder the videos in a course he/she created."""
 
     # def test_course_move_video_down_not_creator_fail(self):
+    #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
 
-    # def test_course_move_video_down_anon_fail(self):
+    def test_course_move_video_down_anon_fail(self):
+        """An anonymous user should not be able to reorder the videos in any course."""
+
+        with self.client as c:
+            data={"course-id": "1", "vc-id": "1", "video-seq": "1", "arrow": "1"}
+            res = c.post(f"courses/{self.c.id}/videos/resequence", data=data, follow_redirects=True)
+
+            self.assertIn("Access unauthorized", str(res.data))
 
     # ***************************
     # Test course details route
     # ***************************
 
-    # def test_course_details(self):
-    #     """A logged in user should be able to view the videos that are part of a course."""
+    def test_course_details(self):
+        """A logged in user should be able to view the videos that are part of a course."""
 
-    # def test_course_details_anon_fail(self):
-    #     """An anonymous user should not be able to view the course details page."""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user1.id    
+
+        res = c.get("/courses/1/details")
+        self.assertIn("View videos in course", str(res.data))
+
+    def test_course_details_anon_fail(self):
+        """An anonymous user should not be able to view the course details page."""
+
+        with self.client as c:
+            res = c.get("/courses/1/details", follow_redirects=True)
+            self.assertIn("Access unauthorized", str(res.data))
