@@ -135,6 +135,7 @@ class CourseViewsTestCase(TestCase):
             self.assertEqual(res.status_code, 200)
             self.assertIn("Access unauthorized", str(res.data))
 
+
     def test_course_add_dupe_fail(self):
         """A user should not be able to add a course with the same title as one of their existing courses."""
 
@@ -194,10 +195,10 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id
 
-        res = c.post("/courses/search", 
-                        data={"phrase": ""})
+            res = c.post("/courses/search", 
+                            data={"phrase": ""})
 
-        self.assertIn('No search term found; showing all courses', str(res.data))
+            self.assertIn('No search term found; showing all courses', str(res.data))
 
     def test_course_search_no_search_match(self):
         """When a logged in user executes a search for courses and no courses match the search term, """
@@ -206,11 +207,11 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id
 
-        # search for a course
-        res = c.post("/courses/search", 
-                        data={"phrase": "zzzzz"})
+            # search for a course
+            res = c.post("/courses/search", 
+                            data={"phrase": "zzzzz"})
 
-        self.assertIn('There are no courses with titles similar to zzzzz.', str(res.data))
+            self.assertIn('There are no courses with titles similar to zzzzz.', str(res.data))
 
     # **************************
     # Test course edit routes
@@ -223,12 +224,12 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2.id
 
-        res = c.get("/courses/1/edit")
-        self.assertIn("Modify a course", str(res.data))
-        self.assertIn("Desc for Video1", str(res.data))
-        self.assertIn("fa-arrow-down", str(res.data))
-        self.assertIn("fa-arrow-up", str(res.data))
-        self.assertIn("Remove</button>", str(res.data))
+            res = c.get("/courses/1/edit")
+            self.assertIn("Modify a course", str(res.data))
+            self.assertIn("Desc for Video1", str(res.data))
+            self.assertIn("fa-arrow-down", str(res.data))
+            self.assertIn("fa-arrow-up", str(res.data))
+            self.assertIn("Remove</button>", str(res.data))
 
     def test_course_edit_404(self):
         """A logged in user who tries to access the edit page for a course number that does not exist will see custom 404 error page."""
@@ -237,8 +238,8 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2.id
 
-        res = c.get("/courses/999/edit")
-        self.assertIn("Sorry, this is not the page you\\\'re looking for.", str(res.data))
+            res = c.get("/courses/999/edit")
+            self.assertIn("Sorry, this is not the page you\\\'re looking for.", str(res.data))
 
     def test_course_edit_not_creator_fail(self):
         """A logged in user who is NOT the course creator should NOT be able to access the course edit page."""
@@ -247,9 +248,9 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id
 
-        res = c.get("/courses/1/edit", follow_redirects=True)
-        self.assertIn("You must be the course creator to view this page.", str(res.data))
-        self.assertIn("What Knowledge Will You <strong>Access</strong> Today?", str(res.data))
+            res = c.get("/courses/1/edit", follow_redirects=True)
+            self.assertIn("You must be the course creator to view this page.", str(res.data))
+            self.assertIn("What Knowledge Will You <strong>Access</strong> Today?", str(res.data))
 
 
     def test_course_edit_anon_fail(self):
@@ -269,9 +270,9 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user2.id
         
-        data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
-        res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
-        self.assertNotIn("Desc for Video1", str(res.data))
+            data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
+            res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
+            self.assertNotIn("Desc for Video1", str(res.data))
 
 
     def test_course_remove_video_not_creator_fail(self):
@@ -281,11 +282,18 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id
 
-        data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
-        res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
-        self.assertIn("Access unauthorized", str(res.data))
+            data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
+            res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
+            self.assertIn("Access unauthorized", str(res.data))
     
     # def test_course_remove_video_anon_fail(self):
+        """An anonymous user should not be able to remove a video from a any course."""
+
+        with self.client as c:
+
+            data = {"course-id": "1", "video-id": "1", "video-seq": "1"}
+            res = c.post("/courses/1/videos/remove", data=data, follow_redirects=True)
+            self.assertIn("Access unauthorized", str(res.data))        
 
     def test_course_move_video_up(self):
         """A logged in user should be able to reorder the videos in a course he/she created."""
@@ -311,10 +319,10 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id
 
-        data = {"course-id": "1", "video-id": "2", "video-seq": "2", "arrow": "-1"}
-        res = c.post(f"/courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
-        
-        self.assertIn("Access unauthorized", str(res.data))
+            data = {"course-id": "1", "video-id": "2", "video-seq": "2", "arrow": "-1"}
+            res = c.post(f"/courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
+
+            self.assertIn("Access unauthorized", str(res.data))
 
 
     def test_course_move_video_up_anon_fail(self):
@@ -326,8 +334,22 @@ class CourseViewsTestCase(TestCase):
 
             self.assertIn("Access unauthorized", str(res.data))
 
-    # def test_course_edit_move_video_down(self):
-    #     """A logged in user should be able to reorder the videos in a course he/she created."""
+    def test_course_edit_move_video_down(self):
+        """A logged in user should be able to reorder the videos in a course he/she created."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user2.id
+
+            data={"course-id": "1", "vc-id": "1", "video-seq": "1", "arrow": "1"}
+            res = c.post(f"courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
+
+            vc1 = VideoCourse.query.filter(VideoCourse.course_id == self.c_id, VideoCourse.id == self.vc1_id).all()
+
+            vc2 = VideoCourse.query.filter(VideoCourse.course_id == self.c_id, VideoCourse.id == self.vc2_id).all()
+
+            self.assertEqual(vc1[0].video_seq, 2)
+            self.assertEqual(vc2[0].video_seq, 1)
 
     # def test_course_move_video_down_not_creator_fail(self):
     #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
@@ -352,8 +374,8 @@ class CourseViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.user1.id    
 
-        res = c.get("/courses/1/details")
-        self.assertIn("View videos in course", str(res.data))
+            res = c.get("/courses/1/details")
+            self.assertIn("View videos in course", str(res.data))
 
     def test_course_details_anon_fail(self):
         """An anonymous user should not be able to view the course details page."""
