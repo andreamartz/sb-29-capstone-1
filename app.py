@@ -12,10 +12,10 @@ from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 from models import db, connect_db, User, Course, Video, VideoCourse
 
 # comment this line out when deploying to Heroku
-# from secrets import API_SECRET_KEY
+from secrets import API_SECRET_KEY
 
 # comment this line out when working with local app
-API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
+# API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
 API_BASE_URL = "https://www.googleapis.com/youtube/v3"
@@ -103,7 +103,8 @@ def get_yt_videos(keyword):
 
     # search for video data
     search_json = yt_search(keyword, MAX_RESULTS)
-    items = search_json['items']
+
+    items = search_json["items"]
 
     # create list of dicts containing info & data re: individual videos
     videos_data = create_list_of_videos(items)
@@ -120,7 +121,7 @@ def yt_search(keyword, max_results):
 
     # search for video data
     res = requests.get(
-        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&key={API_SECRET_KEY}"
+        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&order=relevance&key={API_SECRET_KEY}"
     )
 
     # turn search results into json
@@ -175,7 +176,6 @@ def search_videos():
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
 
     # get search form data
     data = get_form_data()
@@ -472,14 +472,15 @@ def courses_search():
     form = CourseSearchForm()
 
     if form.validate_on_submit():
-        phrase = (form.phrase.data).lower()
+        phrase = (form.phrase.data)
+        phrase_lower = phrase.lower()
         # if no search phrase was provided by user
-        if not phrase:
+        if not phrase_lower:
             courses = Course.query.all()
             flash('No search term found; showing all courses', "info")
         # if search phrase was provided by user
         else:
-            courses = Course.query.filter(func.lower(Course.title).contains(f"{phrase}")).all()
+            courses = Course.query.filter(func.lower(Course.title).contains(f"{phrase_lower}")).all()
             # if no courses were returned from the search
             if len(courses) == 0:
                 flash(
