@@ -59,6 +59,7 @@ class CourseViewsTestCase(TestCase):
         db.session.add(course1)
         db.session.commit()
         self.c = course1
+        self.c_id = self.c.id
 
         # Add three videos to the course
         video1 = Video(title="Video1", description="Desc for Video1", yt_video_id="yfoY53QXEnI", yt_channel_id="video1video1", yt_channel_title="Video1 Channel", thumb_url="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg")
@@ -87,6 +88,8 @@ class CourseViewsTestCase(TestCase):
         self.vc1 = vc1
         self.vc2 = vc2
         self.vc3 = vc3
+        self.vc1_video_seq = self.vc1.video_seq
+        self.vc2_video_seq = self.vc2.video_seq
 
         # set the testing client server
         self.client = app.test_client()
@@ -158,7 +161,7 @@ class CourseViewsTestCase(TestCase):
     # **************************
 
     def test_course_search(self):
-        """A logged in user should be able to see the  courses search page and search for a course."""
+        """A logged in user should be able to see the courses search page and search for a course."""
 
         with self.client as c:
             with c.session_transaction() as sess:
@@ -166,11 +169,11 @@ class CourseViewsTestCase(TestCase):
 
             # create a new course
             res1 = c.post("/courses/new", 
-                        data={"title": "New Course Title", "description": "New Course Description"})
+                        data={"title": "New Course Title", "description": "New Course Description"}, follow_redirects=True)
 
             # search for the new course
             res2 = c.post("/courses/search", 
-                        data={"phrase": "New Course Title"})
+                        data={"phrase": "New Course Title"}, follow_redirects=True)
 
             self.assertIn('Showing courses with titles matching phrases similar to New Course Title', str(res2.data))
 
@@ -290,10 +293,10 @@ class CourseViewsTestCase(TestCase):
                 sess[CURR_USER_KEY] = self.user2.id
 
             data={"course-id": "1", "vc-id": "2", "video-seq": "2", "arrow": "-1"}
-            res = c.post(f"courses/{self.c.id}/videos/resequence", data=data, follow_redirects=True)
+            res = c.post(f"courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
 
-            self.assertEqual(self.vc2.video_seq, 1)
-            self.assertEqual(self.vc1.video_seq, 2)
+            self.assertEqual(self.vc2_video_seq, 1)
+            self.assertEqual(self.vc1_video_seq, 2)
 
     # def test_course_move_video_up_not_creator_fail(self):
     #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
