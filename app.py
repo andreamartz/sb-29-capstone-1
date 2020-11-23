@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, g, session, request, jsonify, flash, redirect
 
 from flask_debugtoolbar import DebugToolbarExtension
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 import requests
 
@@ -59,6 +60,8 @@ def do_logout():
 
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
+        g.user = None
+
 
 # ************************************************
 #
@@ -469,15 +472,14 @@ def courses_search():
     form = CourseSearchForm()
 
     if form.validate_on_submit():
-        phrase = form.phrase.data
+        phrase = (form.phrase.data).lower()
         # if no search phrase was provided by user
         if not phrase:
             courses = Course.query.all()
             flash('No search term found; showing all courses', "info")
         # if search phrase was provided by user
         else:
-            courses = Course.query.filter(
-                Course.title.like(f"%{phrase}%")).all()
+            courses = Course.query.filter(func.lower(Course.title).contains(f"{phrase}")).all()
             # if no courses were returned from the search
             if len(courses) == 0:
                 flash(
