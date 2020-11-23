@@ -88,6 +88,8 @@ class CourseViewsTestCase(TestCase):
         self.vc1 = vc1
         self.vc2 = vc2
         self.vc3 = vc3
+        self.vc1_id = vc1.id
+        self.vc2_id = vc2.id
         self.vc1_video_seq = self.vc1.video_seq
         self.vc2_video_seq = self.vc2.video_seq
 
@@ -295,11 +297,25 @@ class CourseViewsTestCase(TestCase):
             data={"course-id": "1", "vc-id": "2", "video-seq": "2", "arrow": "-1"}
             res = c.post(f"courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
 
-            self.assertEqual(self.vc2_video_seq, 1)
-            self.assertEqual(self.vc1_video_seq, 2)
+            vc1 = VideoCourse.query.filter(VideoCourse.course_id == self.c_id, VideoCourse.id == self.vc1_id).all()
 
-    # def test_course_move_video_up_not_creator_fail(self):
-    #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
+            vc2 = VideoCourse.query.filter(VideoCourse.course_id == self.c_id, VideoCourse.id == self.vc2_id).all()
+
+            self.assertEqual(vc1[0].video_seq, 2)
+            self.assertEqual(vc2[0].video_seq, 1)
+
+    def test_course_move_video_up_not_creator_fail(self):
+        """A logged in user should not be able to reorder the videos in a course he/she did not create."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user1.id
+
+        data = {"course-id": "1", "video-id": "2", "video-seq": "2", "arrow": "-1"}
+        res = c.post(f"/courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
+        
+        self.assertIn("Access unauthorized", str(res.data))
+
 
     def test_course_move_video_up_anon_fail(self):
         """An anonymous user should not be able to reorder the videos in any course."""
