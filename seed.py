@@ -19,9 +19,8 @@ with open('generator/users.csv') as users:
 print('************************')
 
 with open('generator/courses.csv') as courses:
-    reader = csv.DictReader(courses)
-    for row in reader:
-        print(row)
+    print(DictReader(courses))
+
     db.session.bulk_insert_mappings(Course, DictReader(courses))
 
 db.session.commit()
