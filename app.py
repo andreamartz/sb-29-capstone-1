@@ -463,13 +463,13 @@ def courses_search():
         return redirect("/")
 
     form = CourseSearchForm()
+    courses = Course.query.all()
 
     if form.validate_on_submit():
         phrase = (form.phrase.data)
         phrase_lower = phrase.lower()
         # if no search phrase was provided by user
         if not phrase_lower:
-            courses = Course.query.all()
             flash('No search term found; showing all courses', "info")
         # if search phrase was provided by user
         else:
@@ -483,9 +483,7 @@ def courses_search():
                 flash(
                     f'Showing courses with titles matching phrases similar to {phrase}', "info")
 
-        return render_template('courses/search.html', form=form, courses=courses)
-
-    return render_template('/courses/search.html', form=form)
+    return render_template('/courses/search.html', form=form, courses=courses)
 
 
 @app.route('/courses/<int:course_id>/edit', methods=["GET"])
