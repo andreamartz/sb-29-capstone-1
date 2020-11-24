@@ -12,10 +12,10 @@ from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 from models import db, connect_db, User, Course, Video, VideoCourse
 
 # comment this line out when deploying to Heroku
-from secrets import API_SECRET_KEY
+# from secrets import API_SECRET_KEY
 
 # comment this line out when working with local app
-# API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
+API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
 API_BASE_URL = "https://www.googleapis.com/youtube/v3"
