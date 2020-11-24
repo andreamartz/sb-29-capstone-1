@@ -46,47 +46,9 @@ class UserViewsTestCase(TestCase):
         user1 = User.signup("allison@allison.com", "allison", "allison", "Allison", "McAllison", None)
         user1.id = 1111
 
-        user2 = User.signup("jackson@jackson.com", "jackson", "jackson", "Jackson", "McJackson", None)
-        user2.id = 2222
-
         db.session.commit()
 
         self.user1 = user1
-        self.user2 = user2
-
-        # # Create a course
-        # course1 = Course(title="Jackson's Course Title", description="Jackson's Course Description", creator_id="2222")
-        # db.session.add(course1)
-        # db.session.commit()
-        # self.c = course1
-
-        # # Add three videos to the course
-        # video1 = Video(title="Video1", description="Desc for Video1", yt_video_id="yfoY53QXEnI", yt_channel_id="video1video1", yt_channel_title="Video1 Channel", thumb_url="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg")
-
-        # video2 = Video(title="Video2", description="Desc for Video2", yt_video_id="1PnVor36_40", yt_channel_id="video2video2", yt_channel_title="Video2 Channel", thumb_url="https://i.ytimg.com/vi/1PnVor36_40/hqdefault.jpg")
-
-        # video3 = Video(title="Video3", description="Desc for Video3", yt_video_id="qKoajPPWpmo", yt_channel_id="video3video3", yt_channel_title="Video3 Channel", thumb_url="https://i.ytimg.com/vi/qKoajPPWpmo/hqdefault.jpg")
-        # db.session.add(video1)
-        # db.session.add(video2)
-        # db.session.add(video3)
-        # db.session.commit()
-
-        # self.v1 = video1
-        # self.v2 = video2
-        # self.v3 = video3
-
-        # vc1 = VideoCourse(course_id=self.c.id, video_id=video1.id, video_seq=1)
-        # vc2 = VideoCourse(course_id=self.c.id, video_id=video2.id, video_seq=2)
-        # vc3 = VideoCourse(course_id=self.c.id, video_id=video3.id, video_seq=3) 
-
-        # db.session.add(vc1)
-        # db.session.add(vc2)
-        # db.session.add(vc3)
-        # db.session.commit()      
-
-        # self.vc1 = vc1
-        # self.vc2 = vc2
-        # self.vc3 = vc3
 
         # set the testing client server
         self.client = app.test_client()
@@ -149,11 +111,23 @@ class UserViewsTestCase(TestCase):
     def test_user_login(self):
         """A registered user should be able to login."""
 
-        # with self.client as c:
+        with self.client as c:
+            data={"username": "allison",
+            "password": "allison"}
+
+            username = data["username"]
+            res = c.post("/login", data=data, follow_redirects=True)
+
+            self.assertIn("Hello,", str(res.data))
 
     def test_user_logout(self):
         """When a logged in user clicks logout, their id should be removed from the session."""
 
-        # with self.client as c:
-        #     with c.session_transaction() as sess:
-        #         sess[CURR_USER_KEY] = self.user1.id
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user1.id
+
+            res = c.get("/logout", follow_redirects=True)
+
+            self.assertIn("Welcome back.</p>", str(res.data))
+            self.assertIn("Log in</button>", str(res.data))
