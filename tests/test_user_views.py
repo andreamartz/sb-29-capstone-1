@@ -107,23 +107,53 @@ class UserViewsTestCase(TestCase):
             "last_name": "LastName",
             "image_url": None,
             "email": "email@email.com"}
-            # "https://i.ytimg.com/vi/1Rs2ND1ryYc/hqdefault.jpg"
+
+            username = data["username"]
+            res = c.post(
+            "/signup", data=data, follow_redirects=True)
+
+            self.assertIn(f"Welcome {username}!", str(res.data))
+
+    def test_user_signup_dupe_username_fail(self):
+        """A user should not be able to register an account with a username that has already been taken. After doing so, the user will be logged in."""
+
+        with self.client as c:
+            data={"username": "allison",
+            "password": "Password",
+            "first_name": "FirstName",
+            "last_name": "LastName",
+            "image_url": None,
+            "email": "email@email.com"}
 
             res = c.post(
-            "/courses/1/videos/'1Rs2ND1ryYc'/add", data=data,
-            follow_redirects=True)
+            "/signup", data=data, follow_redirects=True)
 
-            # self.assert
+            self.assertIn("Username or email already taken", str(res.data))
 
-    # def test_user_signup_dupe_username_fail(self):
-    #     """A user should not be able to register an account with a username that has already been taken. After doing so, the user will be logged in."""
+    def test_user_signup_dupe_email_fail(self):
+        """A user should not be able to register an account with an email that has already been taken."""
 
-    # def test_user_login(self):
-    #     """A registered user should be able to login."""
+        with self.client as c:
+            data={"username": "UserName",
+            "password": "Password",
+            "first_name": "FirstName",
+            "last_name": "LastName",
+            "image_url": None,
+            "email": "allison@allison.com"}
 
-    # def test_user_logout(self):
-    #     """When a logged in user clicks logout, their id should be removed from the session."""
+            res = c.post(
+            "/signup", data=data, follow_redirects=True)
 
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.user1.id
+            self.assertIn("Username or email already taken", str(res.data))
+
+    def test_user_login(self):
+        """A registered user should be able to login."""
+
+        # with self.client as c:
+
+    def test_user_logout(self):
+        """When a logged in user clicks logout, their id should be removed from the session."""
+
+        # with self.client as c:
+        #     with c.session_transaction() as sess:
+        #         sess[CURR_USER_KEY] = self.user1.id
