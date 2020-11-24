@@ -181,8 +181,6 @@ def search_videos():
     data = get_form_data()
     keyword = data["keyword"]
 
-    # CHANGE: delete comment below
-    # do I need to check data for errors? It's only one input field, and it has the required attribute in the html.
     # validate the form data
     errors = validate_data(data)
 
@@ -396,7 +394,7 @@ def add_video_to_course(course_id, yt_video_id):
 
     video_seq = len(course.videos) + 1
 
-    # CHANGE: QUESTION: is this the best way to add a value to a join table???
+    # CHANGE: QUESTION: is this the best way to add a record to a join table???
     video_course = VideoCourse(course_id=course_id,
                                video_id=video.id,
                                video_seq=video_seq)
@@ -406,17 +404,12 @@ def add_video_to_course(course_id, yt_video_id):
 
     flash("Good news! The video was successfully added to the course.", "success")
 
-    # CHANGE: why do I need all of the dots and slashes here, but not in other routes?
     return redirect(f'../../../../courses/{course_id}/videos/search')
 
 
 # *******************************
 # COURSE ROUTES
 # *******************************
-
-# CHANGE TO DO:
-# 1. get likeCount and viewCount for each video from YT
-
 
 @app.route("/courses/new", methods=["GET", "POST"])
 def courses_add():
@@ -538,7 +531,7 @@ def courses_details(course_id):
     user = g.user
     return render_template("courses/details.html", user=user, course=course, videos_courses=videos_courses_asc)
 
-# CHANGE QUESTION: The video resequence route seems like it should be a PATCH route, but when I change POST to PATCH, I get a 405 Method Not Allowed status code.  Why?
+
 @app.route('/courses/<int:course_id>/videos/resequence', methods=["POST"])
 def courses_resequence(course_id):
     """There is no view for this route.
@@ -564,7 +557,7 @@ def courses_resequence(course_id):
     arrow = request.form.get('arrow')
     arrow = int(arrow)
 
-    # CHANGE: vc and vc_switch should always have length one; what's the best way to rewrite this? .first()?
+
     vc = VideoCourse.query.filter(
         VideoCourse.id == vc_id
     ).all()
@@ -587,7 +580,7 @@ def courses_resequence(course_id):
 
     return redirect(f'../../../courses/{course_id}/edit')
 
-# CHANGE QUESTION: The video removal route seems like it should be a DELETE route, but when I change POST to DELETE, I get a 405 Method Not Allowed status code.  Why?
+
 @app.route('/courses/<int:course_id>/videos/remove', methods=["POST"])
 def remove_video(course_id):
     """There is no view for this route.
@@ -607,8 +600,6 @@ def remove_video(course_id):
         return redirect("/")
 
     # get the video_id from the form
-    # CHANGE: should this be instead request.form.get('video-id', None)?
-    # potential advantage is to avoid an error?
     video_id = request.form.get('video-id')
 
     # get the video sequence number from the form
