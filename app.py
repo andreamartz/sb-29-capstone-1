@@ -558,23 +558,22 @@ def courses_resequence(course_id):
     arrow = int(arrow)
 
 
-    vc = VideoCourse.query.filter(
-        VideoCourse.id == vc_id
-    ).all()
+    vc = VideoCourse.query.filter(VideoCourse.id == vc_id).all()
 
-    vc_switch = VideoCourse.query.filter(
-        VideoCourse.course_id == course_id,
-        VideoCourse.video_seq == (video_seq + arrow)
-    ).all()
+    vc_switch = VideoCourse.query.filter(VideoCourse.course_id == course_id,
+        VideoCourse.video_seq == (video_seq + arrow)).all()
 
-    # update with new video_course_video_seq
-    temp_seq = -1
-    # curr_seq = video_seq
-    vc[0].video_seq = temp_seq
-    vc_switch[0].video_seq = video_seq
-    vc[0].video_seq = video_seq + arrow
+    if len(vc) == 1 and len(vc_switch) == 1:
 
-    db.session.commit()
+        # update with new video_course_video_seq
+        temp_seq_1 = -1
+        # curr_seq = video_seq
+        vc[0].video_seq = temp_seq_1
+        db.session.commit()
+        vc_switch[0].video_seq = video_seq
+        db.session.commit()
+        vc[0].video_seq = video_seq + arrow
+        db.session.commit()
 
     # re-render the course edit page
 

@@ -193,9 +193,12 @@ class VideoCourse(db.Model):
 
     video_seq = db.Column(
         db.Integer,
+        nullable=False,
     )
 
     db.UniqueConstraint(course_id, video_id, video_seq)
+
+    db.UniqueConstraint(course_id, video_seq)
 
 
 def connect_db(app):
