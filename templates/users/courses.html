@@ -1,32 +1,15 @@
-<!-- LOGGED IN USERS ONLY
-  * This page will allow a user to search for courses by word or phrase in course title.
+<!-- LOGGED IN USERS ONLY:
+This page will show:
+* for ALL USERS: a list of courses the user has created
 -->
 
 {% extends 'base.html' %}
 {% block content %}
 <div class="row justify-content-center mb-4">
-  <h1>Courses Search</h1>
+  <h1>My Courses</h1>
 </div>
-<div class="row justify-content-md-center">
-  <div class="col-md-8">
-    <form method="POST">
-      <div class="form-group">
-        {{ form.hidden_tag() }}
-
-        {% for field in form if field.widget.input_type != 'hidden' %}
-        {% for error in field.errors %}
-        <span class="text-danger">{{ error }}</span>
-        {% endfor %}
-        {{ field(placeholder=field.label.text, class="form-control mb-3") }}
-        {% endfor %}
-      </div>
-      <div class="row">
-        <div class="col-md-4 col-lg-3 mb-5">
-          <button class="btn btn-primary btn-lg btn-block">Search</button>
-        </div>
-      </div>
-    </form>
-  </div>
+<div class="row justify-content-center mb-4">
+  <p class="h4 text-center mb-2">Click on a course image to be taken to the list of videos in the course.</p>
 </div>
 
 <!-- Courses will be rendered by Flask server. -->

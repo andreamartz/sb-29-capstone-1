@@ -296,6 +296,23 @@ def logout():
     return redirect("/login")
 
 
+@app.route('/users/<int:user_id>/courses')
+def list_user_courses(user_id):
+    """Show a list of courses created by the logged in user."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    if user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    courses = Course.query.filter(
+        Course.creator_id == user_id).all()
+
+    return render_template(f"users/courses.html", courses=courses)
+
 # *********************************
 #
 # VIDEO ROUTE HELPER FUNCTION

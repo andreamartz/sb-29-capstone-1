@@ -32,7 +32,10 @@
         </li>
         {% else %}
         <li class="nav-item">
-          <a href="/courses/search" class="nav-link pr-4 text-light">Courses</a>
+          <a href="/courses/search" class="nav-link pr-4 text-light">Search</a>
+        </li>
+        <li class="nav-item">
+          <a href="/users/{{g.user.id}}/courses" class="nav-link pr-4 text-light">My Courses</a>
         </li>
         <li class="nav-item">
           <a href="/courses/new" class="nav-link pr-4 text-light">Create course</a>
