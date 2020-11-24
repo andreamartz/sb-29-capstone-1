@@ -5,6 +5,5 @@ testing-plans.md
 .DS_Store
 Capstone-1-Helpful-Links.docx
 SBCapstone1-generated-sql.sql
-generator/
 venv/
 __pycache__/

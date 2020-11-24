@@ -222,10 +222,85 @@ def homepage():
 # USER ROUTES
 # *******************************
 
-# TO DO:
-# 1. create route to delete a user - need ????
-# 2. create route to view user's created courses
+@app.route('/demo')
+def make_demo_acct():
+    """This route has no view.
+    Create a demo account for an anonymous user."""
 
+    user = User.signup(
+        username="Demo",
+        password="demodemo",
+        first_name="Demo",
+        last_name="Demo",
+        image_url=User.image_url.default.arg,
+        email="demo@demo.com",
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    # log in the demo user
+    do_login(user)
+    g.user = user
+
+    # create a course owned by demo user
+    course = Course(title="PMP Test Preparation",
+                    description="Learn everything you need to know to pass the PMP on your first try.",
+                    creator_id=g.user.id)
+    db.session.add(course)
+    db.session.commit()
+
+    # add video1 to database and the course
+    video1 = {"v-title": "PMP Exam Questions And Answers - PMP Certification- PMP Exam Prep (2020) - Video 1",
+            "v-description": "Lot of people think that solving thousands of PMP exam questions and answers will be the deal breaker in there PMP exam prep program. I am not 100% ...",
+            "yt_video_id": "slJRAbvvAr8",
+            "v-channelId": "UCij4PbZVBmFbUYieXQmt6lQ",
+            "v-channelTitle": "EduHubSpot",
+            "v-thumb-url": "https://i.ytimg.com/vi/slJRAbvvAr8/hqdefault.jpg"}
+    add_video_to_db(video1, video1["yt_video_id"])
+    video1_db = Video.query.filter(Video.yt_video_id == video1["yt_video_id"]).first()
+    
+    video1_seq = len(course.videos) + 1
+    video_course1 = VideoCourse(course_id=course.id,
+                               video_id=video1_db.id,
+                               video_seq=video1_seq)
+    db.session.add(video_course1)
+    db.session.commit()
+
+    # add video2 to database and the course
+    video2 = {"v-title": "PMP® Certification Full Course - Learn PMP Fundamentals in 12 Hours | PMP® Training Videos | Edureka",
+            "v-description": "Edureka PMP® Certification Training: https://www.edureka.co/pmp-certification-exam-training This Edureka PMP® Certification Full Course video will help you ...",
+            "yt_video_id": "vzqDTSZOTic",
+            "v-channelId": "UCkw4JCwteGrDHIsyIIKo4tQ",
+            "v-channelTitle": "edureka!",
+            "v-thumb-url": "https://i.ytimg.com/vi/vzqDTSZOTic/hqdefault.jpg"}
+    add_video_to_db(video2, video2["yt_video_id"])
+    video2_db = Video.query.filter(Video.yt_video_id == video2["yt_video_id"]).first()
+
+    video2_seq = len(course.videos) + 1
+    video_course2 = VideoCourse(course_id=course.id,
+                               video_id=video2_db.id,
+                               video_seq=video2_seq)
+    db.session.add(video_course2)
+    db.session.commit()
+
+    # add video3 to database and the course
+    video3 = {"v-title": "PMP Exam Prep 25 What would you do next questions with Aileen",
+            "v-description": "",
+            "yt_video_id": "MQ0f7WLYTlI",
+            "v-channelId": "In this video, 25 what would you do next questions for the PMP Exam, Aileen reviews the strategy to address the many what would you do next questions on the ...",
+            "v-channelTitle": "Aileen Ellis",
+            "v-thumb-url": "https://i.ytimg.com/vi/MQ0f7WLYTlI/hqdefault.jpg"}
+    add_video_to_db(video3, video3["yt_video_id"])
+    video3_db = Video.query.filter(Video.yt_video_id == video3["yt_video_id"]).first()
+
+    video3_seq = len(course.videos) + 1
+    video_course3 = VideoCourse(course_id=course.id,
+                               video_id=video3_db.id,
+                               video_seq=video3_seq)
+    db.session.add(video_course3)
+    db.session.commit()
+
+    return redirect("/")
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -295,6 +370,23 @@ def logout():
     flash("You have successfully logged out.", 'success')
     return redirect("/login")
 
+
+@app.route('/users/<int:user_id>/courses')
+def list_user_courses(user_id):
+    """Show a list of courses created by the logged in user."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    if user_id != g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    courses = Course.query.filter(
+        Course.creator_id == user_id).all()
+
+    return render_template(f"users/courses.html", courses=courses)
 
 # *********************************
 #
@@ -463,13 +555,13 @@ def courses_search():
         return redirect("/")
 
     form = CourseSearchForm()
+    courses = Course.query.all()
 
     if form.validate_on_submit():
         phrase = (form.phrase.data)
         phrase_lower = phrase.lower()
         # if no search phrase was provided by user
         if not phrase_lower:
-            courses = Course.query.all()
             flash('No search term found; showing all courses', "info")
         # if search phrase was provided by user
         else:
@@ -483,9 +575,7 @@ def courses_search():
                 flash(
                     f'Showing courses with titles matching phrases similar to {phrase}', "info")
 
-        return render_template('courses/search.html', form=form, courses=courses)
-
-    return render_template('/courses/search.html', form=form)
+    return render_template('/courses/search.html', form=form, courses=courses)
 
 
 @app.route('/courses/<int:course_id>/edit', methods=["GET"])
@@ -558,23 +648,22 @@ def courses_resequence(course_id):
     arrow = int(arrow)
 
 
-    vc = VideoCourse.query.filter(
-        VideoCourse.id == vc_id
-    ).all()
+    vc = VideoCourse.query.filter(VideoCourse.id == vc_id).all()
 
-    vc_switch = VideoCourse.query.filter(
-        VideoCourse.course_id == course_id,
-        VideoCourse.video_seq == (video_seq + arrow)
-    ).all()
+    vc_switch = VideoCourse.query.filter(VideoCourse.course_id == course_id,
+        VideoCourse.video_seq == (video_seq + arrow)).all()
 
-    # update with new video_course_video_seq
-    temp_seq = -1
-    # curr_seq = video_seq
-    vc[0].video_seq = temp_seq
-    vc_switch[0].video_seq = video_seq
-    vc[0].video_seq = video_seq + arrow
+    if len(vc) == 1 and len(vc_switch) == 1:
 
-    db.session.commit()
+        # update with new video_course_video_seq
+        temp_seq_1 = -1
+        # curr_seq = video_seq
+        vc[0].video_seq = temp_seq_1
+        db.session.commit()
+        vc_switch[0].video_seq = video_seq
+        db.session.commit()
+        vc[0].video_seq = video_seq + arrow
+        db.session.commit()
 
     # re-render the course edit page
 
