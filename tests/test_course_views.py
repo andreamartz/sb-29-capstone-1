@@ -61,33 +61,27 @@ class CourseViewsTestCase(TestCase):
         self.c = course1
         self.c_id = self.c.id
 
-        # Add three videos to the course
+        # Add two videos to the course
         video1 = Video(title="Video1", description="Desc for Video1", yt_video_id="yfoY53QXEnI", yt_channel_id="video1video1", yt_channel_title="Video1 Channel", thumb_url="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg")
 
         video2 = Video(title="Video2", description="Desc for Video2", yt_video_id="1PnVor36_40", yt_channel_id="video2video2", yt_channel_title="Video2 Channel", thumb_url="https://i.ytimg.com/vi/1PnVor36_40/hqdefault.jpg")
 
-        video3 = Video(title="Video3", description="Desc for Video3", yt_video_id="qKoajPPWpmo", yt_channel_id="video3video3", yt_channel_title="Video3 Channel", thumb_url="https://i.ytimg.com/vi/qKoajPPWpmo/hqdefault.jpg")
         db.session.add(video1)
         db.session.add(video2)
-        db.session.add(video3)
         db.session.commit()
 
         self.v1 = video1
         self.v2 = video2
-        self.v3 = video3
 
         vc1 = VideoCourse(course_id=self.c.id, video_id=video1.id, video_seq=1)
         vc2 = VideoCourse(course_id=self.c.id, video_id=video2.id, video_seq=2)
-        vc3 = VideoCourse(course_id=self.c.id, video_id=video3.id, video_seq=3) 
 
         db.session.add(vc1)
         db.session.add(vc2)
-        db.session.add(vc3)
         db.session.commit()      
 
         self.vc1 = vc1
         self.vc2 = vc2
-        self.vc3 = vc3
         self.vc1_id = vc1.id
         self.vc2_id = vc2.id
         self.vc1_video_seq = self.vc1.video_seq
@@ -351,8 +345,17 @@ class CourseViewsTestCase(TestCase):
             self.assertEqual(vc1[0].video_seq, 2)
             self.assertEqual(vc2[0].video_seq, 1)
 
-    # def test_course_move_video_down_not_creator_fail(self):
-    #     """A logged in user should not be able to reorder the videos in a course he/she did not create."""
+    def test_course_move_video_down_not_creator_fail(self):
+        """A logged in user should not be able to reorder the videos in a course he/she did not create."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user1.id
+
+            data = {"course-id": "1", "video-id": "1", "video-seq": "1", "arrow": "1"}
+            res = c.post(f"/courses/{self.c_id}/videos/resequence", data=data, follow_redirects=True)
+
+            self.assertIn("Access unauthorized", str(res.data))
 
     def test_course_move_video_down_anon_fail(self):
         """An anonymous user should not be able to reorder the videos in any course."""
