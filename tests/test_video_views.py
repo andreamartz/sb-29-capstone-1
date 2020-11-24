@@ -60,33 +60,27 @@ class VideoViewTestCase(TestCase):
         db.session.commit()
         self.c = course1
 
-        # Add three videos to the course
+        # Add two videos to the course
         video1 = Video(title="Video1", description="Desc for Video1", yt_video_id="yfoY53QXEnI", yt_channel_id="video1video1", yt_channel_title="Video1 Channel", thumb_url="https://i.ytimg.com/vi/yfoY53QXEnI/hqdefault.jpg")
 
         video2 = Video(title="Video2", description="Desc for Video2", yt_video_id="1PnVor36_40", yt_channel_id="video2video2", yt_channel_title="Video2 Channel", thumb_url="https://i.ytimg.com/vi/1PnVor36_40/hqdefault.jpg")
 
-        video3 = Video(title="Video3", description="Desc for Video3", yt_video_id="qKoajPPWpmo", yt_channel_id="video3video3", yt_channel_title="Video3 Channel", thumb_url="https://i.ytimg.com/vi/qKoajPPWpmo/hqdefault.jpg")
         db.session.add(video1)
         db.session.add(video2)
-        db.session.add(video3)
         db.session.commit()
 
         self.v1 = video1
         self.v2 = video2
-        self.v3 = video3
 
         vc1 = VideoCourse(course_id=self.c.id, video_id=self.v1.id, video_seq=1)
         vc2 = VideoCourse(course_id=self.c.id, video_id=self.v2.id, video_seq=2)
-        vc3 = VideoCourse(course_id=self.c.id, video_id=self.v3.id, video_seq=3) 
 
         db.session.add(vc1)
         db.session.add(vc2)
-        db.session.add(vc3)
         db.session.commit()      
 
         self.vc1 = vc1
         self.vc2 = vc2
-        self.vc3 = vc3
 
         # set the testing client server
         self.client = app.test_client()
@@ -172,7 +166,7 @@ class VideoViewTestCase(TestCase):
                 follow_redirects=True)
 
             course = Course.query.filter(Course.creator_id == 2222).first()
-            self.assertEqual(len(course.videos), 4)
+            self.assertEqual(len(course.videos), 3)
 
 
     def test_add_video_to_course_not_creator_fail(self):
@@ -195,7 +189,7 @@ class VideoViewTestCase(TestCase):
 
             # course should contain only the three videos added by the creator
             course = Course.query.filter(Course.creator_id == 2222).first()
-            self.assertEqual(len(course.videos), 3)
+            self.assertEqual(len(course.videos), 2)
 
             # user should be redirected to the home page
             self.assertIn("What Knowledge Will You <strong>Access</strong> Today?", str(res.data))
@@ -220,7 +214,7 @@ class VideoViewTestCase(TestCase):
 
             # course should contain only the three videos added by the creator
             course = Course.query.filter(Course.creator_id == 2222).first()
-            self.assertEqual(len(course.videos), 3)
+            self.assertEqual(len(course.videos), 2)
 
             # user should be redirected to the home page
             self.assertIn("What Knowledge Will You <strong>Access</strong> Today?", str(res.data))
