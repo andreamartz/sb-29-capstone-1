@@ -5,20 +5,38 @@
 
 Access Academy is a place where users can design courses for others or design their own learning path.  Users might be looking to gain a new skill or study for a professional certification exam. A customized learning path allows a user to curate material that is most relevant for them and leave out material they are already comfortable with.
 
-### Sign up for an account
+## Get Started Using Access Academy
+
+### Try it out.
+To explore the features of this site without creating an account, navigate to the homepage and click on the "demo account" link to access a pre-made demo account.
+### Sign up for an account.
 A user starts by creating an account on the site. There are links to "Sign up" on the home page. The user's password is stored securely in the database in a hashed format. 
 
 Successful creation of an account logs the user in.  
+
+## Returning Users
 
 ### Log in
 
 Returning users who are not already logged in should click "Log in" from the navigation bar. 
 
-Once logged in, a user is able to view existing courses and watch the videos within them. The user can also create new courses. 
+Once logged in, a user is able to:
+* view existing courses and watch the videos within them
+* search for a course using a keyword or phrase
+* create new courses
+* view a page showing the courses they have created
+* add, delete, or resequence the videos in a course they've created
 
+### View existing courses
+Click "Search" in the navigation bar at the top of the page. Some existing courses will be shown initially by default. 
+To see all courses, click the Search button without a search term.
+
+### Search for a course
+On the same page, enter a search term, and the app will search course titles for that term.
 ### Create a course
 
 Click the "Create course" link in the navigation bar to be taken to a page where a course title (required) and description (optional) can be entered.
+
 ### Video search page
 
 After creating a new course, the user is brought to the videos search page. From here, execute a keyword search of YouTube videos. A list of video "cards" will appear on the page. Click on the "Add to course" button to add a video to the end of the course. 
@@ -26,12 +44,15 @@ After creating a new course, the user is brought to the videos search page. From
 The order of videos can be changed later on the 'Modify course' page.
 
 Also on the video search page is a link to view the list of videos in the course. 
+### View your courses
+
+Logged in users can see the courses they've created at any time by clicking "My Courses" from the navigation bar.
 
 ### View the list of videos in a course
 
-Here you will find the list of videos for a course. Click on a video thumbnail to be taken to YouTube to watch it.
+From the list of courses shown on any page, such as the courses search page, click on a video thumbnail image to be taken to YouTube to watch it.
 
-From this page, there are two links _visible only to the course creator_ :
+When viewing the videos in a course, there are two links _visible only to the course creator_ :
 * Search for videos - this takes the user back to the videos search page
 * Modify the course - this takes the user to a page where the course videos can be resequenced or removed.
 
@@ -41,9 +62,13 @@ On this page, which is visible only to the course creator, there is a list of vi
 
 All videos will show a red "Remove" button that, when clicked, will remove the video from the course. If there is only one video in the course, the "Remove" button will be the only button shown.
 
-There will be as many as three buttons on each video card, including the "Remove" button.  The other two buttons are for resequencing the videos within the course. The up arrow button moves the video up one position, and the video that was previously in that position moves down to take its place. The down arrow button similarly causes the video to switch places with the video below it.
+There will be as many as three buttons on each video card, including the "Remove" button. The other two buttons are for resequencing the videos within the course. The up arrow button moves the video up one position, and the video that was previously in that position moves down to take its place. The down arrow button similarly causes the video to switch places with the video below it.
 
 ## Site features
+
+### Account security
+
+User passwords are hashed and stored securely. 
 ### Course search
 
 The courses titles can be searched by word or phrase within the title. This is better than a full title search, because sometimes people remember only part of the title. The search is case-insensitive for better results.
@@ -69,7 +94,7 @@ I am passionate about empowering people to help themselves in their education an
 
 This is a full-stack app that runs Python on the backend with the Flask framework. The front end uses HTML, CSS, Bootstrap, and JavaScript.
 
-The database is built with a PostgreSQL engine, and the Flask-SQLAlchemy ORM is used to create and query the database. 
+The database is built with a PostgreSQL database engine, and the Flask-SQLAlchemy ORM is used to create and query the database. 
 
 WTForms is used to create many of the forms.
 ## External API

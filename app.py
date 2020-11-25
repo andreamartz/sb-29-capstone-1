@@ -12,10 +12,10 @@ from forms import UserAddForm, LoginForm, CourseAddForm, CourseSearchForm
 from models import db, connect_db, User, Course, Video, VideoCourse
 
 # comment this line out when deploying to Heroku
-# from secrets import API_SECRET_KEY
+from secrets import API_SECRET_KEY
 
 # comment this line out when working with local app
-API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
+# API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 
 CURR_USER_KEY = "curr_user"
 API_BASE_URL = "https://www.googleapis.com/youtube/v3"
@@ -44,123 +44,6 @@ def add_user_to_g():
         g.user = User.query.get(session[CURR_USER_KEY])
     else:
         g.user = None
-
-
-# ************************************
-# HELPER FUNCTIONS - login/logout
-# ************************************
-
-def do_login(user):
-    """Log in user."""
-    session[CURR_USER_KEY] = user.id
-
-
-def do_logout():
-    """Logout user."""
-
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
-        g.user = None
-
-
-# ************************************************
-#
-# HELPER FUNCTIONS - Flask API search for videos
-#
-# ************************************************
-
-# TO DO:
-# 1. get likeCount and viewCount for each video from YT
-
-
-def get_form_data():
-    """Get search data from client form."""
-
-    # get search form data from app.js
-    data = {}
-    data["keyword"] = request.json['keyword']
-
-    return data
-
-
-def validate_data(data):
-    """Check for missing data from client."""
-
-    errors = {'errors': {}}
-
-    # if keyword missing from form
-    if not data['keyword']:
-        keyword_err = ["This field is required."]
-        errors['errors']['keyword'] = keyword_err
-
-    return errors
-
-
-def get_yt_videos(keyword):
-    """Get videos from YouTube API on a given topic."""
-
-    MAX_RESULTS = 20
-
-    # search for video data
-    search_json = yt_search(keyword, MAX_RESULTS)
-
-    items = search_json["items"]
-
-    # create list of dicts containing info & data re: individual videos
-    videos_data = create_list_of_videos(items)
-
-    res_json = jsonify(videos_data)
-
-    return res_json
-
-
-def yt_search(keyword, max_results):
-    """Retrieve videos by keyword.
-    Limit results to number in max_results.
-    Return JSON response."""
-
-    # search for video data
-    res = requests.get(
-        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&order=relevance&key={API_SECRET_KEY}"
-    )
-
-    # turn search results into json
-    res_json = res.json()
-
-    return res_json
-
-
-# create list of dicts containing info & data re: individual videos
-def create_list_of_videos(items):
-
-    videos_data = []
-
-    for video in items:
-
-        video_data = {}
-        # add video data to video_data dict
-        video_data["ytVideoId"] = video['id']['videoId']
-        video_data["title"] = video['snippet']['title']
-        video_data["channelId"] = video['snippet']['channelId']
-        video_data["channelTitle"] = video['snippet']['channelTitle']
-        video_data["description"] = video['snippet']['description']
-        video_data["thumb_url_medium"] = video['snippet']['thumbnails']['high']['url']
-
-        videos_data.append(video_data)
-
-    return videos_data
-
-
-def yt_videos(yt_video_id):
-    """Make API call to YouTube Data API.
-    Return the result in JSON format."""
-
-    res = requests.get(
-        f"{API_BASE_URL}/videos?part=player&id={yt_video_id}&key={API_SECRET_KEY}"
-    )
-    videos_json = res.json()
-
-    return videos_json
 
 
 # *******************************
@@ -194,30 +77,6 @@ def search_videos():
     return res
 
 
-# ************************************
-# OTHER ROUTES
-# ************************************
-
-@app.errorhandler(404)
-def page_not_found(error):
-    """Handle 404 errors by showing custom 404 page."""
-
-    return render_template('404.html'), 404
-
-
-@app.route("/")
-def homepage():
-    """Show homepage.
-
-    - anon users: no courses
-    - logged in: button to navigate to page to search for courses
-    """
-    if g.user:
-        return render_template('home.html')
-    else:
-        return render_template('home-anon.html')
-
-
 # *******************************
 # USER ROUTES
 # *******************************
@@ -227,78 +86,13 @@ def make_demo_acct():
     """This route has no view.
     Create a demo account for an anonymous user."""
 
-    user = User.signup(
-        username="Demo",
-        password="demodemo",
-        first_name="Demo",
-        last_name="Demo",
-        image_url=User.image_url.default.arg,
-        email="demo@demo.com",
-    )
-    db.session.add(user)
-    db.session.commit()
+    demo_old = User.query.filter_by(username="Demo", email="demo@demo.com").delete()
+    user = signup_demo_user()
 
-    # log in the demo user
     do_login(user)
     g.user = user
 
-    # create a course owned by demo user
-    course = Course(title="PMP Test Preparation",
-                    description="Learn everything you need to know to pass the PMP on your first try.",
-                    creator_id=g.user.id)
-    db.session.add(course)
-    db.session.commit()
-
-    # add video1 to database and the course
-    video1 = {"v-title": "PMP Exam Questions And Answers - PMP Certification- PMP Exam Prep (2020) - Video 1",
-            "v-description": "Lot of people think that solving thousands of PMP exam questions and answers will be the deal breaker in there PMP exam prep program. I am not 100% ...",
-            "yt_video_id": "slJRAbvvAr8",
-            "v-channelId": "UCij4PbZVBmFbUYieXQmt6lQ",
-            "v-channelTitle": "EduHubSpot",
-            "v-thumb-url": "https://i.ytimg.com/vi/slJRAbvvAr8/hqdefault.jpg"}
-    add_video_to_db(video1, video1["yt_video_id"])
-    video1_db = Video.query.filter(Video.yt_video_id == video1["yt_video_id"]).first()
-    
-    video1_seq = len(course.videos) + 1
-    video_course1 = VideoCourse(course_id=course.id,
-                               video_id=video1_db.id,
-                               video_seq=video1_seq)
-    db.session.add(video_course1)
-    db.session.commit()
-
-    # add video2 to database and the course
-    video2 = {"v-title": "PMP® Certification Full Course - Learn PMP Fundamentals in 12 Hours | PMP® Training Videos | Edureka",
-            "v-description": "Edureka PMP® Certification Training: https://www.edureka.co/pmp-certification-exam-training This Edureka PMP® Certification Full Course video will help you ...",
-            "yt_video_id": "vzqDTSZOTic",
-            "v-channelId": "UCkw4JCwteGrDHIsyIIKo4tQ",
-            "v-channelTitle": "edureka!",
-            "v-thumb-url": "https://i.ytimg.com/vi/vzqDTSZOTic/hqdefault.jpg"}
-    add_video_to_db(video2, video2["yt_video_id"])
-    video2_db = Video.query.filter(Video.yt_video_id == video2["yt_video_id"]).first()
-
-    video2_seq = len(course.videos) + 1
-    video_course2 = VideoCourse(course_id=course.id,
-                               video_id=video2_db.id,
-                               video_seq=video2_seq)
-    db.session.add(video_course2)
-    db.session.commit()
-
-    # add video3 to database and the course
-    video3 = {"v-title": "PMP Exam Prep 25 What would you do next questions with Aileen",
-            "v-description": "",
-            "yt_video_id": "MQ0f7WLYTlI",
-            "v-channelId": "In this video, 25 what would you do next questions for the PMP Exam, Aileen reviews the strategy to address the many what would you do next questions on the ...",
-            "v-channelTitle": "Aileen Ellis",
-            "v-thumb-url": "https://i.ytimg.com/vi/MQ0f7WLYTlI/hqdefault.jpg"}
-    add_video_to_db(video3, video3["yt_video_id"])
-    video3_db = Video.query.filter(Video.yt_video_id == video3["yt_video_id"]).first()
-
-    video3_seq = len(course.videos) + 1
-    video_course3 = VideoCourse(course_id=course.id,
-                               video_id=video3_db.id,
-                               video_seq=video3_seq)
-    db.session.add(video_course3)
-    db.session.commit()
+    populate_demo_data()
 
     return redirect("/")
 
@@ -388,49 +182,10 @@ def list_user_courses(user_id):
 
     return render_template(f"users/courses.html", courses=courses)
 
-# *********************************
-#
-# VIDEO ROUTE HELPER FUNCTION
-#
-# *********************************
-
-
-def add_video_to_db(form_data, yt_video_id):
-    """Add a video to the database."""
-
-    # CHANGE: should .first() be .one_or_none instead?
-    video = Video.query.filter(Video.yt_video_id == yt_video_id).first()
-
-    if not video:
-        # CHANGE: is there a more efficient way to do this?
-        # get video info from hidden form fields
-        # CHANGE: pull this out into a helper function
-        title = form_data.get('v-title', None)
-        description = form_data.get('v-description', None)
-        channelId = form_data.get('v-channelId', None)
-        channelTitle = form_data.get('v-channelTitle', None)
-        thumb_url = form_data.get('v-thumb-url', None)
-
-        # create new video
-        # CHANGE: pull this out into a helper function
-        video = Video(title=title,
-                      description=description,
-                      yt_video_id=yt_video_id,
-                      yt_channel_id=channelId,
-                      yt_channel_title=channelTitle,
-                      thumb_url=thumb_url)
-
-        # add new video to database
-        db.session.add(video)
-        db.session.commit()
-
-    return video
-
 
 # *******************************
 # VIDEO ROUTES
 # *******************************
-
 
 @app.route("/courses/<int:course_id>/videos/search", methods=["GET"])
 def search_videos_form(course_id):
@@ -688,10 +443,8 @@ def remove_video(course_id):
         flash("Access unauthorized", "danger")
         return redirect("/")
 
-    # get the video_id from the form
+    # get the video_id & video sequence number from the form
     video_id = request.form.get('video-id')
-
-    # get the video sequence number from the form
     video_seq = int(request.form.get('video-seq'))
 
     videos_courses = VideoCourse.query.filter(
@@ -721,3 +474,248 @@ def remove_video(course_id):
 
     # re-render the course edit page without the removed video
     return redirect(f'../../../courses/{course_id}/edit')
+
+# ************************************
+# OTHER ROUTES
+# ************************************
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """Handle 404 errors by showing custom 404 page."""
+
+    return render_template('404.html'), 404
+
+
+@app.route("/")
+def homepage():
+    """Show homepage.
+
+    - anon users: no courses
+    - logged in: button to navigate to page to search for courses
+    """
+    if g.user:
+        return render_template('home.html')
+    else:
+        return render_template('home-anon.html')
+
+
+## ************************************************
+## HELPER FUNCTIONS - Flask API search for videos
+## ************************************************
+
+def get_form_data():
+    """Get search data from client form."""
+
+    # get search form data from app.js
+    data = {}
+    data["keyword"] = request.json['keyword']
+
+    return data
+
+
+def validate_data(data):
+    """Check for missing data from client."""
+
+    errors = {'errors': {}}
+
+    # if keyword missing from form
+    if not data['keyword']:
+        keyword_err = ["This field is required."]
+        errors['errors']['keyword'] = keyword_err
+
+    return errors
+
+
+def get_yt_videos(keyword):
+    """Get videos from YouTube API on a given topic."""
+
+    MAX_RESULTS = 20
+
+    # search for video data
+    search_json = yt_search(keyword, MAX_RESULTS)
+
+    items = search_json["items"]
+
+    # create list of dicts containing info & data re: individual videos
+    videos_data = create_list_of_videos(items)
+
+    res_json = jsonify(videos_data)
+
+    return res_json
+
+
+def yt_search(keyword, max_results):
+    """Retrieve videos by keyword.
+    Limit results to number in max_results.
+    Return JSON response."""
+
+    # search for video data
+    res = requests.get(
+        f"{API_BASE_URL}/search/?part=snippet&maxResults={max_results}&type=video&q={keyword}&order=relevance&key={API_SECRET_KEY}"
+    )
+
+    # turn search results into json
+    res_json = res.json()
+
+    return res_json
+
+
+# create list of dicts containing info & data re: individual videos
+def create_list_of_videos(items):
+
+    videos_data = []
+
+    for video in items:
+
+        video_data = {}
+        # add video data to video_data dict
+        video_data["ytVideoId"] = video['id']['videoId']
+        video_data["title"] = video['snippet']['title']
+        video_data["channelId"] = video['snippet']['channelId']
+        video_data["channelTitle"] = video['snippet']['channelTitle']
+        video_data["description"] = video['snippet']['description']
+        video_data["thumb_url_medium"] = video['snippet']['thumbnails']['high']['url']
+
+        videos_data.append(video_data)
+
+    return videos_data
+
+
+def yt_videos(yt_video_id):
+    """Make API call to YouTube Data API.
+    Return the result in JSON format."""
+
+    res = requests.get(
+        f"{API_BASE_URL}/videos?part=player&id={yt_video_id}&key={API_SECRET_KEY}"
+    )
+    videos_json = res.json()
+
+    return videos_json
+
+## *********************************
+## HELPER FUNCTION(S): video route(s)
+## *********************************
+
+def add_video_to_db(form_data, yt_video_id):
+    """Add a video to the database."""
+
+    # CHANGE: should .first() be .one_or_none instead?
+    video = Video.query.filter(Video.yt_video_id == yt_video_id).first()
+
+    if not video:
+        # CHANGE: is there a more efficient way to do this?
+        # get video info from hidden form fields
+        # CHANGE: pull this out into a helper function
+        title = form_data.get('v-title', None)
+        description = form_data.get('v-description', None)
+        channelId = form_data.get('v-channelId', None)
+        channelTitle = form_data.get('v-channelTitle', None)
+        thumb_url = form_data.get('v-thumb-url', None)
+
+        # create new video
+        # CHANGE: pull this out into a helper function
+        video = Video(title=title,
+                      description=description,
+                      yt_video_id=yt_video_id,
+                      yt_channel_id=channelId,
+                      yt_channel_title=channelTitle,
+                      thumb_url=thumb_url)
+
+        # add new video to database
+        db.session.add(video)
+        db.session.commit()
+
+    return video
+
+# *******************************
+# HELPER FUNCTIONS: user routes
+# *******************************
+
+def do_login(user):
+    """Log in user."""
+    session[CURR_USER_KEY] = user.id
+
+
+def do_logout():
+    """Logout user."""
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+        g.user = None
+
+def signup_demo_user():
+    """Create a demo account."""
+
+    user = User.signup(
+        username="Demo",
+        password="demodemo",
+        first_name="Demo",
+        last_name="Demo",
+        image_url=User.image_url.default.arg,
+        email="demo@demo.com",
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
+def populate_demo_data():
+    """Make a course for the demo account and add videos to it."""
+
+    # create a course owned by demo user
+    course = Course(title="PMP Test Preparation",
+                    description="Learn everything you need to know to pass the PMP on your first try.",
+                    creator_id=g.user.id)
+    db.session.add(course)
+    db.session.commit()
+
+    # add video1 to database and the course
+    video1 = {"v-title": "PMP Exam Questions And Answers - PMP Certification- PMP Exam Prep (2020) - Video 1",
+            "v-description": "Lot of people think that solving thousands of PMP exam questions and answers will be the deal breaker in there PMP exam prep program. I am not 100% ...",
+            "yt_video_id": "slJRAbvvAr8",
+            "v-channelId": "UCij4PbZVBmFbUYieXQmt6lQ",
+            "v-channelTitle": "EduHubSpot",
+            "v-thumb-url": "https://i.ytimg.com/vi/slJRAbvvAr8/hqdefault.jpg"}
+    add_video_to_db(video1, video1["yt_video_id"])
+    video1_db = Video.query.filter(Video.yt_video_id == video1["yt_video_id"]).first()
+    
+    video1_seq = len(course.videos) + 1
+    video_course1 = VideoCourse(course_id=course.id,
+                               video_id=video1_db.id,
+                               video_seq=video1_seq)
+    db.session.add(video_course1)
+    db.session.commit()
+
+    # add video2 to database and the course
+    video2 = {"v-title": "PMP® Certification Full Course - Learn PMP Fundamentals in 12 Hours | PMP® Training Videos | Edureka",
+            "v-description": "Edureka PMP® Certification Training: https://www.edureka.co/pmp-certification-exam-training This Edureka PMP® Certification Full Course video will help you ...",
+            "yt_video_id": "vzqDTSZOTic",
+            "v-channelId": "UCkw4JCwteGrDHIsyIIKo4tQ",
+            "v-channelTitle": "edureka!",
+            "v-thumb-url": "https://i.ytimg.com/vi/vzqDTSZOTic/hqdefault.jpg"}
+    add_video_to_db(video2, video2["yt_video_id"])
+    video2_db = Video.query.filter(Video.yt_video_id == video2["yt_video_id"]).first()
+
+    video2_seq = len(course.videos) + 1
+    video_course2 = VideoCourse(course_id=course.id,
+                               video_id=video2_db.id,
+                               video_seq=video2_seq)
+    db.session.add(video_course2)
+    db.session.commit()
+
+    # add video3 to database and the course
+    video3 = {"v-title": "PMP Exam Prep 25 What would you do next questions with Aileen",
+            "v-description": "",
+            "yt_video_id": "MQ0f7WLYTlI",
+            "v-channelId": "In this video, 25 what would you do next questions for the PMP Exam, Aileen reviews the strategy to address the many what would you do next questions on the ...",
+            "v-channelTitle": "Aileen Ellis",
+            "v-thumb-url": "https://i.ytimg.com/vi/MQ0f7WLYTlI/hqdefault.jpg"}
+    add_video_to_db(video3, video3["yt_video_id"])
+    video3_db = Video.query.filter(Video.yt_video_id == video3["yt_video_id"]).first()
+
+    video3_seq = len(course.videos) + 1
+    video_course3 = VideoCourse(course_id=course.id,
+                               video_id=video3_db.id,
+                               video_seq=video3_seq)
+    db.session.add(video_course3)
+    db.session.commit()
