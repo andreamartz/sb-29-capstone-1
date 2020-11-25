@@ -113,7 +113,7 @@ class Course(db.Model):
 
     creator_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id'),
+        db.ForeignKey('users.id', ondelete="cascade"),
         nullable=False,
     )
 

@@ -56,6 +56,7 @@ function handleResponse(res) {
         <div class="col-8 col-md-8">
           <div class="card-body">
             <h5 class="card-title">${title}</h5>
+            <p class="card-subtitle mb-2">Created by: ${channelTitle}</p>
             <p class="card-text">${description}</p>
             <form action="../../../courses/${course_id}/videos/${ytVideoId}/add" method="POST">
               <input type="hidden" id="v-yt-id" name="v-yt-id" value="${ytVideoId}">
