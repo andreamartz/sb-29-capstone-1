@@ -705,9 +705,9 @@ def populate_demo_data():
 
     # add video3 to database and the course
     video3 = {"v-title": "PMP Exam Prep 25 What would you do next questions with Aileen",
-            "v-description": "",
+            "v-description": "In this video, 25 what would you do next questions for the PMP Exam, Aileen reviews the strategy to address the many what would you do next questions on the ...",
             "yt_video_id": "MQ0f7WLYTlI",
-            "v-channelId": "In this video, 25 what would you do next questions for the PMP Exam, Aileen reviews the strategy to address the many what would you do next questions on the ...",
+            "v-channelId": "UCzl_4rhvVtjJ_rSIC1HRvmw",
             "v-channelTitle": "Aileen Ellis",
             "v-thumb-url": "https://i.ytimg.com/vi/MQ0f7WLYTlI/hqdefault.jpg"}
     add_video_to_db(video3, video3["yt_video_id"])
