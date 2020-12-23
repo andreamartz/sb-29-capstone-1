@@ -72,7 +72,7 @@ class UserViewsTestCase(TestCase):
 
             username = data["username"]
             res = c.post(
-            "/signup", data=data, follow_redirects=True)
+            "/users/new", data=data, follow_redirects=True)
 
             self.assertIn(f"Welcome {username}!", str(res.data))
 
@@ -88,7 +88,7 @@ class UserViewsTestCase(TestCase):
             "email": "email@email.com"}
 
             res = c.post(
-            "/signup", data=data, follow_redirects=True)
+            "/users/new", data=data, follow_redirects=True)
 
             self.assertIn("Username or email already taken", str(res.data))
 
@@ -104,7 +104,7 @@ class UserViewsTestCase(TestCase):
             "email": "allison@allison.com"}
 
             res = c.post(
-            "/signup", data=data, follow_redirects=True)
+            "/users/new", data=data, follow_redirects=True)
 
             self.assertIn("Username or email already taken", str(res.data))
 

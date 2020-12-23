@@ -81,7 +81,7 @@ def search_videos():
 # USER ROUTES
 # *******************************
 
-@app.route('/demo')
+@app.route('/users/demo')
 def make_demo_acct():
     """This route has no view.
     Create a demo account for an anonymous user."""
@@ -96,7 +96,7 @@ def make_demo_acct():
 
     return redirect("/")
 
-@app.route('/signup', methods=["GET", "POST"])
+@app.route('/users/new', methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
