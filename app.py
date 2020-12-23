@@ -135,7 +135,7 @@ def signup():
         return render_template('users/signup.html', form=form)
 
 
-@app.route('/login', methods=["GET", "POST"])
+@app.route('/users/login', methods=["GET", "POST"])
 def login():
     """Handle user login."""
 
@@ -162,7 +162,7 @@ def logout():
     do_logout()
 
     flash("You have successfully logged out.", 'success')
-    return redirect("/login")
+    return redirect("/users/login")
 
 
 @app.route('/users/<int:user_id>/courses')
