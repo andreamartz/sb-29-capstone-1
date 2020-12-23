@@ -116,7 +116,7 @@ class UserViewsTestCase(TestCase):
             "password": "allison"}
 
             username = data["username"]
-            res = c.post("/login", data=data, follow_redirects=True)
+            res = c.post("/users/login", data=data, follow_redirects=True)
 
             self.assertIn("Hello,", str(res.data))
 
